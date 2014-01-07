@@ -64,10 +64,6 @@ var template = {
   }
 }
 
-process.stdin.on('end', function() {
-  verifyManifestJSON(JSON.parse(jsondata, template));
-});
-
 function isFunction(functionToCheck) {
   var getType = {};
   return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
@@ -78,7 +74,7 @@ var errors = {};
 function verifyManifestJSON(obj, rules) {
   for (k in rules) {
     if (k in obj) {
-      if isFunction(rules[k]) {
+      if (isFunction(rules[k])) {
         if (!rules[k](obj[k])) {
           //failed rules check  
           errors.push("Failed rule '"+k+"'.")
@@ -97,3 +93,7 @@ function verifyManifestJSON(obj, rules) {
     }
   }
 }
+
+process.stdin.on('end', function() {
+  verifyManifestJSON(JSON.parse(jsondata, template));
+});
