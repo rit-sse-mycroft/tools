@@ -6,20 +6,20 @@ process.stdin.on('data', function(chunk) {
   jsondata += chunk;
 });
 
-function isSemanic(str) {
+function isSemantic(str) {
   if (!(str instanceof String)) {
-    process.stdout.write("ERROR: '"+str+"' is not a string instance and cannot be parsed into a semantic version.");
+    process.stdout.write("#ERROR '"+str+"' is not a string instance and cannot be parsed into a semantic version.\n");
     return false;
   }
   
   var triple = str.split('.');
   if (triple.length > 3) {
-    process.stdout.write("ERROR: '"+str+"' has more than three .'s and can't be a semantic version.");
+    process.stdout.write("#ERROR '"+str+"' has more than three .'s and can't be a semantic version.\n");
     return false;
   }
   
   if ((triple[1] && isNan(Number(triple[1]))) || (triple[2] && isNaN(Number(triple[2])))) {
-    process.stdout.write("ERROR: components of version string '"+str+"' were not numeric.");
+    process.stdout.write("#ERROR components of version string '"+str+"' were not numeric.\n");
     return false;
   } 
   
@@ -33,7 +33,7 @@ function isSemanic(str) {
   }
   
   if (triple[0] && isNan(Number(triple[0]))) {
-    process.stdout.write("ERROR: first component of version string '"+str+"' was not numeric.");
+    process.stdout.write("#ERROR first component of version string '"+str+"' was not numeric.\n");
     return false;
   }
   
@@ -42,7 +42,7 @@ function isSemanic(str) {
 
 var template = {
   "version" : function(val) { //rule
-    return isSemantic(str);
+    return isSemantic(val);
   },
   "name": true, //required
   "displayname":false, //optional
@@ -52,7 +52,7 @@ var template = {
   },
   "description": function(val) {
     //warn
-    process.stdout.write("WARNING: No description field given.");
+    process.stdout.write("#WARN No description field given.\n");
     return true;
   },
   "dependencies": function(val) {
@@ -69,7 +69,7 @@ function isFunction(functionToCheck) {
   return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
 }
 
-var errors = {};
+var errors = [];
 
 function verifyManifestJSON(obj, rules) {
   for (k in rules) {
@@ -77,7 +77,7 @@ function verifyManifestJSON(obj, rules) {
       if (isFunction(rules[k])) {
         if (!rules[k](obj[k])) {
           //failed rules check  
-          errors.push("Failed rule '"+k+"'.")
+          errors.push("not ok "+errors.length+" Failed rule '"+k+"'.")
         }
       } else {
         if (rules[k] instanceof Object) {
@@ -88,12 +88,20 @@ function verifyManifestJSON(obj, rules) {
     } else {
       if (rules[k]!==false) {
         //required key missing
-        error.push("Required key '"+k+"' missing.")
+        errors.push("not ok "+errors.length+" Required key '"+k+"' missing.")
+      } else {
+        errors.push("ok "+errors.length+" Recommended key '"+k+"' missing.")
       }
     }
   }
 }
 
 process.stdin.on('end', function() {
-  verifyManifestJSON(JSON.parse(jsondata, template));
+  verifyManifestJSON(JSON.parse(jsondata), template);
+  var bad = 1;
+  for (k in errors) {
+    bad = 0;
+    process.stdout.write(errors[k]+"\n");
+  }
+  process.exit(bad);
 });
