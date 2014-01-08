@@ -70,6 +70,26 @@ function register(cli, manifest){
     instanceId: id,
     dataPort: 4000
   }));
+}
 
   //send dependency notifications
+var dependencyTracker = {};
+function addDependents(manifest){
+	for(var dependency in manifest.dependencies){
+		if(!(dependency in dependencyTracker)){
+			dependencyTracker[dependency] = {}
+		}
+		var name = manifest.name;
+		dependencyTracker.dependency.name = manifest.dependencies[dependency];
+	}
+}
+
+function dependencyAlerter(manifest){
+	var name = manifest.name;
+	var dependents = dependencyTracker.name;
+	for(var dependent in dependents){
+		if(semver.satisfies(dependencyTracker.name.dependent, manifest.version){
+			// same version
+		}
+	}
 }
