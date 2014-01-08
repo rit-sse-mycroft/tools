@@ -3,15 +3,15 @@ var manifest = require('./app.json');
 
 var client = net.connect({port: 1847}, function() {
   console.log('client connected');
-  client.write('manifest ' + JSON.stringify(manifest));
+  client.write('MANIFEST ' + JSON.stringify(manifest));
 });
 
 client.on('data', function (data) {
-  dataMatch = /response (.*)/.exec(data);
-  if (dataMatch.length != 2) {
+  dataMatch = /MANIFEST_(OK||FAIL) (.*)/.exec(data);
+  if (dataMatch.length != 3) {
     message = 'invalid json response';
   } else {
-    data = JSON.parse(dataMatch[1]);
+    data = JSON.parse(dataMatch[2]);
 
     if (data.status == 'STATUS_GOOD') {
       message = {
@@ -22,7 +22,7 @@ client.on('data', function (data) {
       var messageBoard = net.connect({ port: data.port }, function () {
         console.log('connected to message board');
         console.log(message);
-        messageBoard.write('message ' + JSON.stringify(message));
+        messageBoard.write('MESSAGE ' + JSON.stringify(message));
       });
     } else if (data.status == 'MISSING_DEPENDENCIES') {
       message = 'missing dependencies';
