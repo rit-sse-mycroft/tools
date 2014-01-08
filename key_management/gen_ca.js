@@ -90,7 +90,6 @@ cmd += "-days 3650 -nodes -x509 "
 cmd += "-subj \"/C=US/ST=NY/L=Rochester/O=SSE-CA/CN=*\" ";
 cmd += "-keyout " + path.join("CA", "ca.key") + " ";
 cmd += "-out " + path.join("CA", "ca.crt");
-function puts(error, stdout, stderr) {
-  sys.puts(stdout)
-}
-exec(cmd, puts);
+exec(cmd, function finish() {
+  console.log("Done");
+});
