@@ -19,7 +19,7 @@ client.on('data', function (data) {
     if (data.status == 'STATUS_GOOD') {
       message = {
         timestamp: new Date().toISOString(),
-        token: data.instanceId,
+        instanceId: data.instanceId,
         content: 'pickle unicorns'
       }
       var messageBoard = net.connect({ port: data.port }, function () {
