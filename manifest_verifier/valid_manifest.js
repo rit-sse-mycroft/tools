@@ -1,11 +1,3 @@
-process.stdin.resume();
-process.stdin.setEncoding('utf8');
-
-var jsondata = "";
-process.stdin.on('data', function(chunk) {
-  jsondata += chunk;
-});
-
 function isSemantic(str) {
   if (typeof(str) === "number" && !isNaN(Number(str))) {
     if (Number(str) >= 0) {
@@ -119,12 +111,4 @@ function verifyManifestJSON(inp) {
   return errors;
 }
 
-process.stdin.on('end', function() {
-  var errors = verifyManifestJSON(JSON.parse(jsondata));
-  var bad = 1;
-  for (k in errors) {
-    bad = 0;
-    process.stdout.write(errors[k]+"\n");
-  }
-  process.exit(bad);
-});
+module.exports = verifyManifestJSON;
