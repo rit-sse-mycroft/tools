@@ -16,21 +16,19 @@ client.on('data', function (data) {
     console.log('Response type: MANIFEST_' + dataMatch[1]);
     console.log('Response recieved:');
     console.log(data);
-    if (data.status == 'STATUS_GOOD') {
+    if (dataMatch[1] === 'OK') {
       message = {
         timestamp: new Date().toISOString(),
         instanceId: data.instanceId,
         content: 'pickle unicorns'
       }
-      var messageBoard = net.connect({ port: data.port }, function () {
+      var messageBoard = net.connect({ port: data.dataPort }, function () {
         console.log('connected to message board');
         console.log(message);
         messageBoard.write('MESSAGE ' + JSON.stringify(message));
       });
-    } else if (data.status == 'MISSING_DEPENDENCIES') {
-      message = 'missing dependencies';
-    } else if (data.status == 'INVALID_CONFIG') {
-      message = 'invalid config';
+    } else if (dataMatch[1] === 'FAIL') {
+      message = 'Manifest validation failed';
     } else {
       message = 'something went wrong';
     }
