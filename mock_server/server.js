@@ -1,9 +1,9 @@
-var tls = require('tls');
+var net = require('net');
 
-var serv = tls.createServer(function(cli) {
+var serv = net.createServer(function(cli) {
   console.log('server connected');
   cli.on('end', function(){
-  	console.log('server disconnected');
+    console.log('server disconnected');
   });
 });
 
