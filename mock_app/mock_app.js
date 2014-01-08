@@ -1,17 +1,15 @@
-
 var net = require('net');
 var manifest = require('./app.json')
 var message = require('./message.json')
-var client = net.connect({port: 1847},
-	fuction() {
-		console.log('client connected');
-		client.write(manifest);
-	});
+var client = net.connect({port: 1847}, function() {
+  console.log('client connected');
+  client.write(manifest);
+});
 
 client.on('data', function() {
-	client.write(message);
+  client.write(message);
 });
 
 client.on('end', function() {
-	console.log('client disconnected');
-})
+  console.log('client disconnected');
+});
