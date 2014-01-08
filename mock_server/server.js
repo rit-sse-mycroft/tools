@@ -17,7 +17,7 @@ var serv = net.createServer(function(cli) {
       data = JSON.parse(msg.substr(msg.indexOf(' {') + 1));
     }
     catch(err){
-      //Handle this...
+      return cli.write("MSG_MALFORMED \n" + err);
     }
     handleMsg(type, data, cli);
   });
