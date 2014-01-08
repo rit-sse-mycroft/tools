@@ -5,29 +5,29 @@ function isSemantic(str) {
     }
     return false; //-4.3333, on the other hand, is wrong.
   }
-  
+
   if (typeof(str) !== "string") {
     process.stdout.write("#ERROR '" + str + "' is not a string instance and cannot be parsed into a semantic version.\n");
     return false;
   }
-  
+
   var triple = str.split('.');
   if (triple.length > 3) {
     process.stdout.write("#ERROR '" + str + "' has more than two .'s and can't be a semantic version.\n");
     return false;
   }
 
-  
+
   if ((triple[1] && isNaN(Number(triple[1]))) || (triple[2] && isNaN(Number(triple[2])))) {
     process.stdout.write("#ERROR components of version string '" + str + "' were not numeric.\n");
     return false;
-  } 
-  
+  }
+
   if ( (triple[1] && triple[1].trim() === "") || (triple[2] && triple[2].trim() === "")) {
     process.stdout.write("#ERROR components of version string '" + str + "' did not exist.\n");
     return false;
   }
-  
+
   triple[0] = triple[0].trim();
   var prefixes = ["~", "<=", "<", "="];
   for (k in prefixes) {
@@ -37,17 +37,17 @@ function isSemantic(str) {
       break;
     }
   }
-  
+
   if (triple[0].trim() === "") {
     process.stdout.write("#ERROR first component of version string '" + str + "' did not exist.\n");
     return false;
   }
-  
+
   if (triple[0] && isNaN(Number(triple[0]))) {
     process.stdout.write("#ERROR first component of version string '" + str + "' was not numeric.\n");
     return false;
   }
-  
+
   return true;
 }
 
@@ -85,7 +85,7 @@ function verifyManifestJSON(inp) {
     for (k in rules) {
       if (isFunction(rules[k])) {
         if (!rules[k](obj[k])) {
-          //failed rules check  
+          //failed rules check
           errors.push("not ok "+errors.length+" Failed rule '"+k+"'.")
         }
         //otherwise pass, do nothing
@@ -106,7 +106,7 @@ function verifyManifestJSON(inp) {
       }
     }
   }
-  
+
   verifyJSON(inp, template);
   return errors;
 }
