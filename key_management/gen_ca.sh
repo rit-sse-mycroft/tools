@@ -56,5 +56,5 @@ EOF
 
 # generate new self-signed key/cert (valid for 10 years)
 openssl req -new -newkey rsa:$keylen -days 3650 -nodes -x509 \
-        -subj "/C=US/ST=New York/L=Rochester/O=SSE/CN=mycroft" \
-        -keyout ${CAROOT}/ca.key  -out ${CAROOT}/ca.crt > /dev/null 2> /dev/null;
+        -subj "/C=US/ST=NY/L=Rochester/O=SSE-CA/CN=*" \
+        -keyout ${CAROOT}/ca.key  -out ${CAROOT}/ca.crt;

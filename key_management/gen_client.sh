@@ -41,7 +41,7 @@ csr="$name.csr";
 crt="$name.crt";
 openssl genrsa -out $keyfile $keylen;
 openssl req -new -key $keyfile -out $csr \
-            -subj "/C=US/ST=New York/L=Rochester/O=SSE/CN=mycroft";
+            -subj "/C=US/ST=NY/L=Rochester/O=SSE/CN=*";
 openssl ca -config CA/ca.conf \
            -batch \
            -in $csr \
