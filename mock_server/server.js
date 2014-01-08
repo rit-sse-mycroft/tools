@@ -38,11 +38,37 @@ function handleMsg(type, data, cli){
 var apps = {}
 
 function register(cli, manifest){
+  var id;
+  var instances;
   var validation = validateManifest(manifest);
   var isValidMan = validation.length === 0;
   if(!isValidMan){
     return cli.write("MANIFEST_FAIL " + JSON.stringify(validation)); //TODO: STANDARDIZE
   }
 
-  return cli.write("MANIFEST_OK " + JSON.stringify({you: "did it!"}));
+    // Have we seen this app before?
+  if(!(manifest.name in apps)){
+    apps[manifest.name] = {};
+  }
+
+  instances = apps[manifest.name];
+  // Accept provided id or create new one
+  id = manifest.instanceId || uuid.v4();
+
+  if(id in instances){
+    return cli.write("E_INST " + JSON.stringify({msg: "Instance name: " + id +" taken!"}))
+  }
+
+  instances[id] = 'up';
+  cli.on('end', function(){
+    //notify id disconnected...
+    delete instances[id];
+  });
+
+  cli.write("MANIFEST_OK " + JSON.stringify({
+    instanceId: id,
+    dataPort: 4000
+  }));
+
+  //send dependency notifications
 }
