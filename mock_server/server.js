@@ -10,6 +10,7 @@ var serv = net.createServer(function(cli) {
   });
 
   cli.on('data', function(msg){
+  	msg = msg.toString();
     var type = msg.substr(0, msg.indexOf(' {'));
     var data;
     try {
