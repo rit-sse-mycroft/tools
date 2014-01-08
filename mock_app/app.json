@@ -6,7 +6,6 @@
     "API": "0",
     "description": "It does odd stuff like testing or things",
     "dependencies": {
-        "logger": ">=1.2",
         "*": ""
     }
 }
