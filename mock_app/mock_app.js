@@ -22,7 +22,7 @@ client.on('data', function (data) {
       var messageBoard = net.connect({ port: data.port }, function () {
         console.log('connected to message board');
         console.log(message);
-        messageBoard.write('message ' + JSON.stringify(data));
+        messageBoard.write('message ' + JSON.stringify(message));
       });
     } else if (data.status == 'MISSING_DEPENDENCIES') {
       message = 'missing dependencies';
