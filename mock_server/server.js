@@ -1,6 +1,7 @@
 var net = require('net');
 var validateManifest = require('../manifest_verifier/valid_manifest');
 var uuid = require('uuid');
+var semver = require('semver');
 
 var serv = net.createServer(function(cli) {
   console.log('server connected');
@@ -72,24 +73,24 @@ function register(cli, manifest){
   }));
 }
 
-  //send dependency notifications
 var dependencyTracker = {};
+//add in new dependents
 function addDependents(manifest){
 	for(var dependency in manifest.dependencies){
 		if(!(dependency in dependencyTracker)){
 			dependencyTracker[dependency] = {}
 		}
-		var name = manifest.name;
-		dependencyTracker.dependency.name = manifest.dependencies[dependency];
+		dependencyTracker[dependency] = [manifest.name, manifest.dependencies[dependency]];
 	}
 }
-
+//notify a new 'dependent' is avaliable
 function dependencyAlerter(manifest){
 	var name = manifest.name;
-	var dependents = dependencyTracker.name;
+	var dependents = dependencyTracker[name];
 	for(var dependent in dependents){
-		if(semver.satisfies(dependencyTracker.name.dependent, manifest.version){
-			// same version
+		if(semver.satisfies(manifest.version, dependencyTracker[name][1])){
+			console.log("version is compatible");
+			// alert that is ok
 		}
 	}
 }
