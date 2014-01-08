@@ -10,13 +10,14 @@ var serv = net.createServer(function(cli) {
   });
 
   cli.on('data', function(msg){
+  	msg = msg.toString();
     var type = msg.substr(0, msg.indexOf(' {'));
     var data;
     try {
       data = JSON.parse(msg.substr(msg.indexOf(' {') + 1));
     }
     catch(err){
-      //Handle this...
+      return cli.write("MSG_MALFORMED \n" + err);
     }
     handleMsg(type, data, cli);
   });
