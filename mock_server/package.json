@@ -12,6 +12,7 @@
   "author": "RIT-SSE",
   "license": "-",
   "dependencies": {
-    "mocha": "~1.16.2"
+    "mocha": "~1.16.2",
+    "uuid": "~1.4.1"
   }
 }
