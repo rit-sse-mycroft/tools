@@ -4,6 +4,7 @@ var manifest = require('./app.json');
 var client = net.connect({port: 1847}, function() {
   console.log('client connected');
   client.write('MANIFEST ' + JSON.stringify(manifest));
+  console.log('Sent: MANIFEST ' + JSON.stringify(manifest));
 });
 
 client.on('data', function (data) {
@@ -12,11 +13,13 @@ client.on('data', function (data) {
     message = 'invalid json response';
   } else {
     data = JSON.parse(dataMatch[2]);
-
+    console.log('Response type: MANIFEST_' + dataMatch[1]);
+    console.log('Response recieved:');
+    console.log(data);
     if (data.status == 'STATUS_GOOD') {
       message = {
         timestamp: new Date().toISOString(),
-        token: data.token,
+        token: data.instanceId,
         content: 'pickle unicorns'
       }
       var messageBoard = net.connect({ port: data.port }, function () {
