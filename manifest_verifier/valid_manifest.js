@@ -7,10 +7,10 @@ function isSemantic(str) {
   var versionReg = /^([><]=?)?\d+(\.\d+){0,2}$/;
   if (!versionReg.test(str)) {
     process.stdout.write("#ERROR Version string is not formatted correctly: '" + str + "'\n");
-    return false
+    return false;
   }
 
-  return true
+  return true;
 }
 
 var template = {
