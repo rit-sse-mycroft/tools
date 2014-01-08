@@ -1,9 +1,12 @@
 var tls = require('tls');
 
 var serv = tls.createServer(function(cli) {
-  //do... stuff? Yeah, stuff.
+  console.log('server connected');
+  cli.on('end', function(){
+  	console.log('server disconnected');
+  });
 });
 
-serv.listen(4000, function() {
+serv.listen(1847, function() {
   console.log("Mycroft mock server onlined");
 });
