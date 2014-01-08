@@ -3,7 +3,7 @@ var manifest = require('./app.json');
 
 var client = net.connect({port: 1847}, function() {
   console.log('client connected');
-  client.write(manifest);
+  client.write('manifest ' + JSON.stringify(manifest));
 });
 
 client.on('data', function (data) {
@@ -12,7 +12,7 @@ client.on('data', function (data) {
     message = 'invalid json response';
   } else {
     data = JSON.parse(dataMatch[1]);
-    
+
     if (data.status == 'STATUS_GOOD') {
       message = {
         timestamp: new Date().toISOString(),
