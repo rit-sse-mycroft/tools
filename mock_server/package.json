@@ -1,0 +1,17 @@
+{
+  "name": "mock_server",
+  "version": "0.0.1",
+  "description": "Mycroft mock server for testing",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "author": "RIT-SSE",
+  "license": "-",
+  "dependencies": {
+    "mocha": "~1.16.2"
+  }
+}
