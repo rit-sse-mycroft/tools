@@ -32,7 +32,7 @@ function connectToMycroft() {
       console.error('There was an error');
     }
   });
-
+  console.log('Connected to Mycroft');
   return client;
 }
 
@@ -50,10 +50,12 @@ function sendManifest(connection, path) {
 }
 
 function up(connection) {
+  console.log('Sending App Up');
   connection.write('APP_UP');
 }
 
 function down(connection) {
+  console.log('Sending app down');
   connection.write('APP_DOWN');
 }
 
@@ -65,7 +67,7 @@ function query(connection, service, remoteProcedure, args, instanceIdTo, instanc
     args: args,
     instanceIdTo: instanceIdTo,
     instanceIdFrom: instanceIdFrom
-  }
+  };
 
   connection.write('MSG_QUERY ' + JSON.stringify(query));
 }
@@ -94,7 +96,6 @@ function manifestCheck(data) {
     }
   }
 }
-
 
 exports.connectToMycroft = connectToMycroft;
 exports.sendManifest = sendManifest;
