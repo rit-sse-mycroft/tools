@@ -37,7 +37,7 @@ function handleMsg(type, data, cli){
 }
 
 // Lazy app state tracker :D
-var apps = {}
+var apps = {};
 
 function register(cli, manifest){
   var id;
@@ -89,8 +89,7 @@ function dependencyAlerter(manifest){
 	var dependents = dependencyTracker[name];
 	for(var dependent in dependents){
 		if(semver.satisfies(manifest.version, dependencyTracker[name][1])){
-			console.log("version is compatible");
-			// alert that is ok
+			console.log("version is compatible"); //TODO alert that new dependencies is avaliable
 		}
 	}
 }
