@@ -20,7 +20,7 @@ function sendManifest(connection, path) {
   catch(err) {
     console.error("Invalid file path");
   }
-  connection.write("MANIFEST " + JSON.stringify(manifest));
+  connection.write('APP_MANIFEST ' + JSON.stringify(manifest));
 }
 
 //Sends a message to the Mycroft global message board.
@@ -30,11 +30,11 @@ function sendMessage(connection, instanceId, content) {
     instanceId: instanceId,
     content: content
   };
-  connection.write('MESSAGE ' + JSON.stringify(message));
+  connection.write('MSG_BROADCAST ' + JSON.stringify(message));
 }
 
 function manifestCheck(data, content) {
-  var dataMatch = /MANIFEST_(OK||FAIL) (.*)/.exec(data),
+  var dataMatch = /APP_MANIFEST_(OK||FAIL) (.*)/.exec(data),
       message = '',
       data;
 
@@ -42,7 +42,7 @@ function manifestCheck(data, content) {
     throw "Received invalid JSON response";
   } else {
     data = JSON.parse(dataMatch[2]);
-    console.log('Response type: MANIFEST_' + dataMatch[1]);
+    console.log('Response type: APP_MANIFEST_' + dataMatch[1]);
     console.log('Response recieved:');
     console.log(data);
 
