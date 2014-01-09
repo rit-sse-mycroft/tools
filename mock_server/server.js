@@ -58,7 +58,6 @@ var apps = {};
 
 function register(cli, manifest){
   var id;
-  var instances;
   var validation = validateManifest(manifest);
   var isValidMan = validation.length === 0;
   if(!isValidMan){
@@ -74,13 +73,13 @@ function register(cli, manifest){
   // Accept provided id or create new one
   id = manifest.instanceId || uuid.v4();
 
-  if(id in instances){
+  if(id in apps){
     return cli.write("E_INST " + JSON.stringify({msg: "Instance name: " + id +" taken!"}))
   }
 
   cli.instanceId = manifest.instanceId;
 
-  instances[id] = {
+  apps[id] = {
     'socket' : cli,
     'manifest' : manifest,
     'status' : 'down'
@@ -90,7 +89,7 @@ function register(cli, manifest){
   cli.on('end', function(){
     dependencyRemovedAlerter(manifest);
     removeDependents(manifest);
-    delete instances[id];
+    delete apps[id];
   });
 
   cli.write("APP_MANIFEST_OK " + JSON.stringify({
