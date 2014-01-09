@@ -12,13 +12,20 @@ var serv = net.createServer(function(cli) {
 
   cli.on('data', function(msg){
   	msg = msg.toString();
-    var type = msg.substr(0, msg.indexOf(' {'));
-    var data;
-    try {
-      data = JSON.parse(msg.substr(msg.indexOf(' {') + 1));
+    var index = msg.indexOf(' {');
+    var type = '';
+    var data = {};
+    if (index > 0) { // if a body was supplied
+      msg.substr(0, msg.indexOf(' {'));
+      try {
+        data = JSON.parse(msg.substr(msg.indexOf(' {') + 1));
+      }
+      catch(err) {
+        return cli.write("MSG_MALFORMED \n" + err);
+      }
     }
-    catch(err){
-      return cli.write("MSG_MALFORMED \n" + err);
+    else { // no body was supplied
+      type = msg;
     }
     handleMsg(type, data, cli);
   });
@@ -34,9 +41,16 @@ function handleMsg(type, data, cli){
   if(type === 'APP_MANIFEST'){
     register(cli, data);
   }
+  if(type === 'APP_UP'){
+    goUp(cli, data);
+  }
+  if(type === 'APP_DOWN'){
+    goDown(cli, data);
+  }
 }
 
 // Lazy app state tracker :D
+// { 'instance_name' : {...}, ... }
 var apps = {};
 
 function register(cli, manifest){
@@ -48,12 +62,11 @@ function register(cli, manifest){
     return cli.write("MANIFEST_FAIL " + JSON.stringify(validation)); //TODO: STANDARDIZE
   }
 
-    // Have we seen this app before?
-  if(!(manifest.name in apps)){
-    apps[manifest.name] = {};
+  // Have we seen this app before?
+  if(!(manifest.instanceId in apps)){
+    apps[manifest.instanceId] = {};
   }
 
-  instances = apps[manifest.name];
   // Accept provided id or create new one
   id = manifest.instanceId || uuid.v4();
 
@@ -61,10 +74,12 @@ function register(cli, manifest){
     return cli.write("E_INST " + JSON.stringify({msg: "Instance name: " + id +" taken!"}))
   }
 
+  cli.instanceId = manifest.instanceId;
+
   instances[id] = {
     'socket' : cli,
     'manifest' : manifest,
-    'status' : up
+    'status' : 'down'
   };
   addDependents(manifest);
   dependencyAlerter(manifest);
@@ -77,6 +92,18 @@ function register(cli, manifest){
     instanceId: id,
     dataPort: 4000
   }));
+}
+
+function goUp(cli, data) {
+  var id = cli.instanceId;
+  apps[id]['status'] = 'up';
+  console.log('app id ' + id + ' just went up');
+}
+
+function goDown(cli, data) {
+  var id = cli.instanceId;
+  apps[id]['status'] = 'down';
+  console.log('app id ' + id + ' just went down');
 }
 
 var dependencyTracker = {};
