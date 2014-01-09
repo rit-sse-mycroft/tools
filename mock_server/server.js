@@ -85,7 +85,6 @@ function register(cli, manifest){
     'status' : 'down'
   };
   addDependents(manifest);
-  dependencyAlerter(manifest, cli);
   cli.on('end', function(){
     dependencyRemovedAlerter(manifest, cli);
     removeDependents(manifest);
@@ -115,28 +114,38 @@ function register(cli, manifest){
 function goUp(cli, data) {
   var id = cli.instanceId;
   apps[id]['status'] = 'up';
+  dependencyAlerter(cli.manifest, cli);
   console.log('app id ' + id + ' just went up');
 }
 
 function goDown(cli, data) {
   var id = cli.instanceId;
   apps[id]['status'] = 'down';
+  dependencyRemovedAlerter(cli.manifest, cli);
   console.log('app id ' + id + ' just went down');
 }
 
+// {
+//   'type' : {
+//     'appName' : 'version',
+//     ...
+//   }
+//   ...
+// }
+// The appName depends on this type at this version
 var dependencyTracker = {};
-//add in new dependents
+//add in new dependents from this manifest file
 function addDependents(manifest){
-  for(var dependency in manifest.dependencies){
-    if(!(dependency in dependencyTracker)){
-      dependencyTracker[dependency] = {}
+  for(var type in manifest.dependencies){
+    if(!(type in dependencyTracker)){
+      dependencyTracker[type] = {}
     }
-    dependencyTracker[dependency][manifest.name] = manifest.dependencies[dependency];
+    dependencyTracker[type][manifest.name] = manifest.dependencies[type];
   }
 }
 //notify a new 'dependent' is avaliable
 function dependencyAlerter(manifest, cli){
-  var name = manifest.name;
+  var type = manifest.type;
   var dependents = dependencyTracker[name];
   var dependable = {};
   for(var dependent in dependents){
