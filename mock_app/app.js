@@ -23,6 +23,13 @@ function sendManifest(connection, path) {
   connection.write('APP_MANIFEST ' + JSON.stringify(manifest));
 }
 
+function join(connection, instanceId) {
+  join_message = {
+    instanceId: instanceId
+  }
+  connection.write('MSG_JOIN ' + join_message)
+}
+
 //Sends a message to the Mycroft global message board.
 function sendMessage(connection, instanceId, content) {
   message = {
