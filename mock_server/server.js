@@ -59,6 +59,7 @@ function register(cli, manifest){
   var validation = validateManifest(manifest);
   var isValidMan = validation.length === 0;
   if(!isValidMan){
+    console.log('Invalid manifest from app id ' + id);
     return cli.write("APP_MANIFEST_FAIL " + JSON.stringify(validation)); //TODO: STANDARDIZE
   }
 
@@ -91,6 +92,7 @@ function register(cli, manifest){
   cli.write("APP_MANIFEST_OK " + JSON.stringify({
     instanceId: id
   }));
+  console.log('App id ' + id + ' connected');
 }
 
 function goUp(cli, data) {
