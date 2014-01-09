@@ -1,5 +1,4 @@
-var net = require('net'),
-  app = require('./app.js'),
+var app = require('./app.js'),
   client = app.connectToMycroft();
 
 app.sendManifest(client, './app.json');
