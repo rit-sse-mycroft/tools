@@ -24,22 +24,22 @@ function sendManifest(connection, path) {
   connection.write('APP_MANIFEST ' + JSON.stringify(manifest));
 }
 
-function join(connection, instanceId) {
+function up(connection, instanceId) {
   joinMessage = {
     instanceId: instanceId
   }
-  connection.write('MSG_JOIN ' + joinMessage);
+  connection.write('APP_UP ' + joinMessage);
 }
 
-function leave(connection, instanceId) {
+function down(connection, instanceId) {
   leaveMessage = {
     instanceId: instanceId
   }
-  connection.write('MSG_OFFLINE ' + leaveMessage);
+  connection.write('APP_DOWN ' + leaveMessage);
 }
 
 function query(connection, service, remoteProcedure, args, instanceIdTo, instanceIdFrom) {
-  query = {
+  queryMessage = {
     id: uuid.v4(),
     service: service,
     remoteProcedure: remoteProcedure,
@@ -52,9 +52,8 @@ function query(connection, service, remoteProcedure, args, instanceIdTo, instanc
 }
 
 //Sends a message to the Mycroft global message board.
-function sendMessage(connection, instanceId, content) {
+function broadcast(connection, instanceId, content) {
   message = {
-    timestamp: new Date().toISOString(),
     instanceId: instanceId,
     content: content
   };
@@ -91,8 +90,8 @@ function manifestCheck(data, content) {
 }
 
 exports.connectToMycroft = connectToMycroft;
-exports.join = join;
-exports.leave = leave;
+exports.up = up;
+exports.down = down;
 exports.query = query;
 exports.sendManifest = sendManifest;
 exports.sendMessage = sendMessage;
