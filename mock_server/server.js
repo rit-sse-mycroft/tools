@@ -61,7 +61,11 @@ function register(cli, manifest){
     return cli.write("E_INST " + JSON.stringify({msg: "Instance name: " + id +" taken!"}))
   }
 
-  instances[id] = 'up';
+  instances[id] = {
+    'socket' : cli,
+    'manifest' : manifest,
+    'status' : up
+  };
   addDependents(manifest);
   dependencyAlerter(manifest);
   cli.on('end', function(){
