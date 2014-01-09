@@ -3,7 +3,10 @@
     "name": "test-service",
     "displayname": "Mycroft test service",
     "instanceID": "mockapp1",
-    "type": [ "microphone", "speaker" ],
+    "capabilities": {
+      "microphone": "1.0.0",
+      "speakers": "1.0.0"
+    },
     "API": "0",
     "description": "It does odd stuff like testing or things",
     "dependencies": {
