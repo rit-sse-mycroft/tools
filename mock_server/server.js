@@ -4,10 +4,10 @@ var uuid = require('uuid');
 var semver = require('semver');
 
 var serv = net.createServer(function(cli) {
-  console.log('Command server connected');
+  console.log('Server connected');
 
   cli.on('end', function(){
-    console.log('Command server disconnected');
+    console.log('Server disconnected');
   });
 
   cli.on('data', function(msg){
@@ -26,12 +26,12 @@ var serv = net.createServer(function(cli) {
 });
 
 serv.listen(1847, function() {
-  console.log("Mycroft mock command server listening on port 1847");
+  console.log("Mycroft mock server listening on port 1847");
 });
 
 
 function handleMsg(type, data, cli){
-  if(type === 'MANIFEST'){
+  if(type === 'APP_MANIFEST'){
     register(cli, data);
   }
 }
