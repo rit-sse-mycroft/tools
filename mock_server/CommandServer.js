@@ -76,20 +76,20 @@ function register(cli, manifest){
 var dependencyTracker = {};
 //add in new dependents
 function addDependents(manifest){
-	for(var dependency in manifest.dependencies){
-		if(!(dependency in dependencyTracker)){
-			dependencyTracker[dependency] = {}
-		}
-		dependencyTracker[dependency] = [manifest.name, manifest.dependencies[dependency]];
-	}
+  for(var dependency in manifest.dependencies){
+    if(!(dependency in dependencyTracker)){
+      dependencyTracker[dependency] = {}
+    }
+    dependencyTracker[dependency] = [manifest.name, manifest.dependencies[dependency]];
+  }
 }
 //notify a new 'dependent' is avaliable
 function dependencyAlerter(manifest){
-	var name = manifest.name;
-	var dependents = dependencyTracker[name];
-	for(var dependent in dependents){
-		if(semver.satisfies(manifest.version, dependencyTracker[name][1])){
-			console.log("version is compatible"); //TODO alert that new dependencies is avaliable
-		}
-	}
+  var name = manifest.name;
+  var dependents = dependencyTracker[name];
+  for(var dependent in dependents){
+    if(semver.satisfies(manifest.version, dependencyTracker[name][1])){
+      console.log("version is compatible"); //TODO alert that new dependencies is avaliable
+    }
+  }
 }
