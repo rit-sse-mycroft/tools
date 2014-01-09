@@ -87,13 +87,28 @@ function register(cli, manifest){
   addDependents(manifest);
   dependencyAlerter(manifest, cli);
   cli.on('end', function(){
-    dependencyRemovedAlerter(manifest, gri);
+    dependencyRemovedAlerter(manifest, cli);
     removeDependents(manifest);
     delete apps[id];
   });
 
+  var depStatus = {}; // {'name':'up/down', ...}
+  var myDeps = manifest['dependencies'];
+  for (var depName in myDeps) { // iterate over what dependencies I need
+    depStatus[depName] = 'down';
+    for(var appID in apps) { // iterate over all apps
+      var isNotMe = !(appID === id);
+      var isUp    = apps[appID]['status'] === 'up';
+      var matchesVersion = semver.satisfies(appID['version'], myDeps[depName]);
+      if (isNotMe && isUp && matchesVersion) {
+        depStatus[depName] = 'up';
+        break;
+      }
+    }
+  }
   cli.write("APP_MANIFEST_OK " + JSON.stringify({
-    instanceId: id
+    instanceId: id,
+    dependencies: depStatus
   }));
   console.log('App id ' + id + ' connected');
 }
