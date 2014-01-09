@@ -2,7 +2,7 @@ var net = require('net');
 var uuid = require('uuid');
 var MYCROFT_PORT = 1847;
 
-function parse_message(msg){
+function parseMessage(msg){
   msg = msg.toString();
   var index = msg.indexOf(' {');
   var type = '';
@@ -81,7 +81,7 @@ function broadcast(connection, content) {
 
 // Checks if the manifest was validated and returns dependencies
 function manifestCheck(data) {
-  var parsed = parse_message(data);
+  var parsed = parseMessage(data);
   if (parsed.type === 'APP_MANIFEST_OK' || parsed.type === 'APP_MANIFEST_FAIL') {
     console.log('Response type: ' +  parsed.type);
     console.log('Response recieved: ' + JSON.stringify(parsed.data));
@@ -95,6 +95,7 @@ function manifestCheck(data) {
   }
 }
 
+exports.parseMessage = parseMessage
 exports.connectToMycroft = connectToMycroft;
 exports.sendManifest = sendManifest;
 exports.up = up;
