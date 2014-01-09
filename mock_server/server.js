@@ -145,7 +145,7 @@ function addDependents(manifest){
 }
 // send the message msg to everyone who depends on the given client (a socket)
 function sendMessageToDependants(cli, msg) {
-  var capabilities = manifest.capabilities;
+  var capabilities = cli['manifest'].capabilities;
   for(var capability in capabilities) {
     var version = capabilities[capability];
     for(var appID in apps) {
