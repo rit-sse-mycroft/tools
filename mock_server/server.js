@@ -15,10 +15,10 @@ var serv = net.createServer(function(cli) {
     var index = msg.indexOf(' {');
     var type = '';
     var data = {};
-    if (index > 0) { // if a body was supplied
-      msg.substr(0, msg.indexOf(' {'));
+    if (index >= 0) { // if a body was supplied
+      type = msg.substr(0, index);
       try {
-        data = JSON.parse(msg.substr(msg.indexOf(' {') + 1));
+        data = JSON.parse(msg.substr(index + 1));
       }
       catch(err) {
         return cli.write("MSG_MALFORMED \n" + err);
@@ -26,6 +26,9 @@ var serv = net.createServer(function(cli) {
     }
     else { // no body was supplied
       type = msg;
+    }
+    if (type === '') {
+      return cli.write("MSG_MALFORMED \n" + err);
     }
     handleMsg(type, data, cli);
   });
@@ -59,6 +62,7 @@ function register(cli, manifest){
   var validation = validateManifest(manifest);
   var isValidMan = validation.length === 0;
   if(!isValidMan){
+    console.log('Invalid manifest from app id ' + id);
     return cli.write("APP_MANIFEST_FAIL " + JSON.stringify(validation)); //TODO: STANDARDIZE
   }
 
@@ -85,12 +89,14 @@ function register(cli, manifest){
   dependencyAlerter(manifest);
   cli.on('end', function(){
     dependencyRemovedAlerter(manifest);
+    removeDependents(manifest);
     delete instances[id];
   });
 
   cli.write("APP_MANIFEST_OK " + JSON.stringify({
     instanceId: id
   }));
+  console.log('App id ' + id + ' connected');
 }
 
 function goUp(cli, data) {
@@ -112,7 +118,7 @@ function addDependents(manifest){
     if(!(dependency in dependencyTracker)){
       dependencyTracker[dependency] = {}
     }
-    dependencyTracker[dependency] = [manifest.name, manifest.dependencies[dependency]];
+    dependencyTracker[dependency][manifest.name] = manifest.dependencies[dependency];
   }
 }
 //notify a new 'dependent' is avaliable
@@ -137,10 +143,9 @@ function dependencyRemovedAlerter(manifest){
 }
 //remove the dependents when offline
 function removeDependents(manifest){
-  for(var dependency in manifest.dependencies){
-    if(!(dependency in dependencyTracker)){
-      dependencyTracker[dependency] = {}
+    for(var dependency in manifest.dependencies){
+      if((dependency in dependencyTracker)){
+        delete dependencyTracker[dependency][manifest.name];
+      }
     }
-    delete dependencyTracker[dependency];
-  }
 }
