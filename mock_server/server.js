@@ -85,9 +85,9 @@ function register(cli, manifest){
     'status' : 'down'
   };
   addDependents(manifest);
-  dependencyAlerter(manifest);
+  dependencyAlerter(manifest, cli);
   cli.on('end', function(){
-    dependencyRemovedAlerter(manifest);
+    dependencyRemovedAlerter(manifest, gri);
     removeDependents(manifest);
     delete apps[id];
   });
@@ -121,7 +121,7 @@ function addDependents(manifest){
   }
 }
 //notify a new 'dependent' is avaliable
-function dependencyAlerter(manifest){
+function dependencyAlerter(manifest, cli){
   var name = manifest.name;
   var dependents = dependencyTracker[name];
   var dependable = {};
@@ -133,7 +133,7 @@ function dependencyAlerter(manifest){
   }
 }
 //alert apps if a dependency goes down
-function dependencyRemovedAlerter(manifest){
+function dependencyRemovedAlerter(manifest, cli){
   var name = manifest.name;
   var dependents = dependencyTracker[name];
   var dependable = {};
