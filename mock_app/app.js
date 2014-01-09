@@ -2,6 +2,29 @@ var net = require('net');
 var uuid = require('uuid');
 var MYCROFT_PORT = 1847;
 
+function parse_message(msg){
+  msg = msg.toString();
+  var index = msg.indexOf(' {');
+  var type = '';
+  var data = {};
+  if (index >= 0) { // if a body was supplied
+    type = msg.substr(0, index);
+    try {
+      data = JSON.parse(msg.substr(index + 1));
+    }
+    catch(err) {
+      return connection.write("MSG_MALFORMED \n" + err);
+    }
+  }
+  else { // no body was supplied
+    type = msg;
+  }
+  if (type === '') {
+    return connection.write("MSG_MALFORMED \n" + err);
+  }
+  return {type: type, data: data};
+}
+
 //path is the path to the json manifest
 function connectToMycroft() {
   client = net.connect({port: MYCROFT_PORT}, function(err){
@@ -56,27 +79,22 @@ function broadcast(connection, instanceId, content) {
   connection.write('MSG_BROADCAST ' + JSON.stringify(message));
 }
 
-function manifestCheck(data, content) {
-  var dataMatch = /APP_MANIFEST_(OK||FAIL) (.*)/.exec(data),
-      data;
+// Checks if the manifest was validated and returns dependencies
+function manifestCheck(data) {
+  var parsed = parse_message(data);
+  if (parsed.type == 'APP_MANIFEST_OK' || parsed.type == 'APP_MANIFEST_FAIL') {
+    console.log('Response type: ' +  parsed.type);
+    console.log('Response recieved: ' + JSON.stringify(parsed.data));
 
-  if (dataMatch.length != 3) {
-    throw 'Received invalid JSON response';
-  } else {
-    data = JSON.parse(dataMatch[2]);
-    console.log('Response type: APP_MANIFEST_' + dataMatch[1]);
-    console.log('Response recieved:');
-    console.log(data);
-
-    if (dataMatch[1] === 'OK') {
+    if (parsed.type === 'APP_MANIFEST_OK') {
       console.log('Manifest Validated');
-    } else if (dataMatch[1] === 'FAIL') {
+      return parsed.data.dependencies;
+    } else if (parsed.type === 'APP_MANIFEST_FAIL') {
       throw 'Invalid application manifest';
-    } else {
-      throw 'Unexpected error, manifest validation failed';
     }
   }
 }
+
 
 exports.connectToMycroft = connectToMycroft;
 exports.sendManifest = sendManifest;

@@ -4,7 +4,7 @@ var app = require('./app.js'),
 app.sendManifest(client, './app.json');
 
 client.on('data', function (data) {
-  app.manifestCheck(data, 'pickle unicorns');
+  app.manifestCheck(data);
 });
 
 
