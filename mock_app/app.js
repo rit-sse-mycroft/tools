@@ -6,9 +6,10 @@ var MYCROFT_PORT = 1847;
 function connectToMycroft() {
   client = net.connect({port: MYCROFT_PORT}, function(err){
     if (err) {
-      console.error("There was an error");
+      console.error('There was an error');
     }
   });
+
   return client;
 }
 
@@ -19,8 +20,9 @@ function sendManifest(connection, path) {
     var manifest = require(path);
   }
   catch(err) {
-    console.error("Invalid file path");
+    console.error('Invalid file path');
   }
+  console.log('Sending Manifest');
   connection.write('APP_MANIFEST ' + JSON.stringify(manifest));
 }
 
@@ -29,7 +31,7 @@ function up(connection) {
 }
 
 function down(connection) {
-  connection.write('APP_DOWN ' + leaveMessage);
+  connection.write('APP_DOWN');
 }
 
 function query(connection, service, remoteProcedure, args, instanceIdTo, instanceIdFrom) {
@@ -42,7 +44,7 @@ function query(connection, service, remoteProcedure, args, instanceIdTo, instanc
     instanceIdFrom: instanceIdFrom
   }
 
-  connection.write('MSG_QUERY ' + query);
+  connection.write('MSG_QUERY ' + JSON.stringify(query));
 }
 
 //Sends a message to the Mycroft global message board.
@@ -56,11 +58,10 @@ function broadcast(connection, instanceId, content) {
 
 function manifestCheck(data, content) {
   var dataMatch = /APP_MANIFEST_(OK||FAIL) (.*)/.exec(data),
-      message = '',
       data;
 
   if (dataMatch.length != 3) {
-    throw "Received invalid JSON response";
+    throw 'Received invalid JSON response';
   } else {
     data = JSON.parse(dataMatch[2]);
     console.log('Response type: APP_MANIFEST_' + dataMatch[1]);
@@ -68,19 +69,13 @@ function manifestCheck(data, content) {
     console.log(data);
 
     if (dataMatch[1] === 'OK') {
-      var messageBoard = net.connect({ port: data.dataPort }, function (err) {
-        console.log('Connecting to Message Board...');
-        if (err) {
-          throw "error connecting to message board";
-        }
-      });
+      console.log('Manifest Validated');
     } else if (dataMatch[1] === 'FAIL') {
-      throw "Invalid application manifest";
+      throw 'Invalid application manifest';
     } else {
-      throw "Unexpected error, manifest validation failed";
+      throw 'Unexpected error, manifest validation failed';
     }
   }
-  return messageBoard;
 }
 
 exports.connectToMycroft = connectToMycroft;
