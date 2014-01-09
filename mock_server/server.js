@@ -74,8 +74,10 @@ function register(cli, manifest){
     'manifest' : manifest,
     'status' : up
   };
+  addDependents(manifest);
+  dependencyAlerter(manifest);
   cli.on('end', function(){
-    //notify id disconnected...
+    dependencyRemovedAlerter(manifest);
     delete instances[id];
   });
 
@@ -105,3 +107,14 @@ function dependencyAlerter(manifest){
     }
   }
 }
+function dependencyRemovedAlerter(manifest){
+  var name = manifest.name;
+  var dependents = dependencyTracker[name];
+  for(var dependent in dependents){
+    if(semver.satisfies(manifest.version, dependencyTracker[name][1])){
+      console.log(name + " is down"); //TODO alert that dependencies is now unavaliable
+    }
+  }
+}
+
+
