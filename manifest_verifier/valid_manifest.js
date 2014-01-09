@@ -19,7 +19,14 @@ var template = {
   },
   "name": true, //required
   "displayname":false, //optional
-  "type": true,
+  "capabilities": function(val) {
+    for (k in val) {
+      if (!isSemantic(val[k])) {
+        return false;
+      }
+    }
+    return true;
+  }
   "API": function(val) {
     return (!isNaN(Math.floor(val)) && val==Math.floor(val)); //is an integer, yes I want == type coercion here.
   },
