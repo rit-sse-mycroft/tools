@@ -37,6 +37,14 @@ function handleMsg(type, data, cli){
 }
 
 // Lazy app state tracker :D
+{ 'weather' :
+  {
+    'temp1' : {
+      'socket' : cli,
+      'manifest' : m
+    }
+  }
+}
 var apps = {};
 
 function register(cli, manifest){
@@ -61,7 +69,11 @@ function register(cli, manifest){
     return cli.write("E_INST " + JSON.stringify({msg: "Instance name: " + id +" taken!"}))
   }
 
-  instances[id] = 'up';
+  instances[id] = {
+    'socket' : cli,
+    'manifest' : manifest,
+    'status' : up
+  };
   cli.on('end', function(){
     //notify id disconnected...
     delete instances[id];
