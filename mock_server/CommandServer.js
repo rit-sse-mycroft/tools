@@ -4,10 +4,10 @@ var uuid = require('uuid');
 var semver = require('semver');
 
 var serv = net.createServer(function(cli) {
-  console.log('server connected');
+  console.log('Command server connected');
 
   cli.on('end', function(){
-    console.log('server disconnected');
+    console.log('Command server disconnected');
   });
 
   cli.on('data', function(msg){
@@ -26,7 +26,7 @@ var serv = net.createServer(function(cli) {
 });
 
 serv.listen(1847, function() {
-  console.log("Mycroft mock server listening on port 1847");
+  console.log("Mycroft mock command server listening on port 1847");
 });
 
 
@@ -89,7 +89,7 @@ function dependencyAlerter(manifest){
   var dependents = dependencyTracker[name];
   for(var dependent in dependents){
     if(semver.satisfies(manifest.version, dependencyTracker[name][1])){
-      console.log("version is compatible"); //TODO alert that new dependencies is avaliable
+      console.log("Version is compatible"); //TODO alert that new dependencies is avaliable
     }
   }
 }
