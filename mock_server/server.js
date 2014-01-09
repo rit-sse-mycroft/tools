@@ -85,6 +85,7 @@ function register(cli, manifest){
   dependencyAlerter(manifest);
   cli.on('end', function(){
     dependencyRemovedAlerter(manifest);
+    removeDependents(manifest);
     delete instances[id];
   });
 
@@ -112,7 +113,7 @@ function addDependents(manifest){
     if(!(dependency in dependencyTracker)){
       dependencyTracker[dependency] = {}
     }
-    dependencyTracker[dependency] = [manifest.name, manifest.dependencies[dependency]];
+    dependencyTracker[dependency][manifest.name] = manifest.dependencies[dependency];
   }
 }
 //notify a new 'dependent' is avaliable
@@ -137,10 +138,9 @@ function dependencyRemovedAlerter(manifest){
 }
 //remove the dependents when offline
 function removeDependents(manifest){
-  for(var dependency in manifest.dependencies){
-    if(!(dependency in dependencyTracker)){
-      dependencyTracker[dependency] = {}
+    for(var dependency in manifest.dependencies){
+      if((dependency in dependencyTracker)){
+        delete dependencyTracker[dependency][manifest.name];
+      }
     }
-    delete dependencyTracker[dependency];
-  }
 }
