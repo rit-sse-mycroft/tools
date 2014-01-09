@@ -7,6 +7,6 @@
     "API": "0",
     "description": "It does odd stuff like testing or things",
     "dependencies": {
-        "*": "9.0"
+        "logger": "1.2"
     }
 }

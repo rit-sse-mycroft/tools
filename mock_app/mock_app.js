@@ -4,7 +4,12 @@ var app = require('./app.js'),
 app.sendManifest(client, './app.json');
 
 client.on('data', function (data) {
-  app.manifestCheck(data);
+  var dependencies = app.manifestCheck(data);
+  if(dependencies){
+  	if(dependencies.logger == 'up'){
+  		app.up(client);
+  	}
+  }
 });
 
 
