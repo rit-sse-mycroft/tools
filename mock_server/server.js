@@ -37,14 +37,6 @@ function handleMsg(type, data, cli){
 }
 
 // Lazy app state tracker :D
-{ 'weather' :
-  {
-    'temp1' : {
-      'socket' : cli,
-      'manifest' : m
-    }
-  }
-}
 var apps = {};
 
 function register(cli, manifest){
