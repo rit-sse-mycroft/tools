@@ -1,11 +1,8 @@
 var net = require('net');
-var manifest = require('./app.json');
+var app = require('./app.js');
 
-var client = net.connect({port: 1847}, function() {
-  console.log('client connected');
-  client.write('MANIFEST ' + JSON.stringify(manifest));
-  console.log('Sent: MANIFEST ' + JSON.stringify(manifest));
-});
+var client = app.connectToMycroft();
+app.sendManifest(client, './app.json');
 
 client.on('data', function (data) {
   dataMatch = /MANIFEST_(OK||FAIL) (.*)/.exec(data);
@@ -16,17 +13,18 @@ client.on('data', function (data) {
     console.log('Response type: MANIFEST_' + dataMatch[1]);
     console.log('Response recieved:');
     console.log(data);
+
     if (dataMatch[1] === 'OK') {
-      message = {
-        timestamp: new Date().toISOString(),
-        instanceId: data.instanceId,
-        content: 'pickle unicorns'
-      }
-      var messageBoard = net.connect({ port: data.dataPort }, function () {
-        console.log('connected to message board');
-        console.log(message);
-        messageBoard.write('MESSAGE ' + JSON.stringify(message));
+      var messageBoard = net.connect({ port: data.dataPort }, function (err) {
+        console.log('Connecting to Message Board...');
+
+        if (err) {
+          console.error('Error connecting to Message Board');
+        }
       });
+
+      app.sendMessage(messageBoard, data.instanceId, 'pickle unicorns');
+
     } else if (dataMatch[1] === 'FAIL') {
       message = 'Manifest validation failed';
     } else {
