@@ -1,4 +1,5 @@
 var net = require('net');
+var uuid = require('uuid');
 var MYCROFT_PORT = 1847;
 
 //path is the path to the json manifest
@@ -35,6 +36,19 @@ function leave(connection, instanceId) {
     instanceId: instanceId
   }
   connection.write('MSG_OFFLINE ' + leaveMessage);
+}
+
+function query(connection, service, remoteProcedure, args, instanceIdTo, instanceIdFrom) {
+  query = {
+    id: uuid.v4(),
+    service: service,
+    remoteProcedure: remoteProcedure,
+    args: args,
+    instanceIdTo: instanceIdTo,
+    instanceIdFrom: instanceIdFrom
+  }
+
+  connection.write('MSG_QUERY ' + query);
 }
 
 //Sends a message to the Mycroft global message board.
@@ -77,6 +91,9 @@ function manifestCheck(data, content) {
 }
 
 exports.connectToMycroft = connectToMycroft;
+exports.join = join;
+exports.leave = leave;
+exports.query = query;
 exports.sendManifest = sendManifest;
 exports.sendMessage = sendMessage;
 exports.manifestCheck = manifestCheck;
