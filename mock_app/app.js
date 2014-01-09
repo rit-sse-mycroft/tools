@@ -9,6 +9,7 @@ function connectToMycroft() {
       console.error("There was an error");
     }
   });
+
   return client;
 }
 
@@ -29,7 +30,7 @@ function up(connection) {
 }
 
 function down(connection) {
-  connection.write('APP_DOWN ' + leaveMessage);
+  connection.write('APP_DOWN');
 }
 
 function query(connection, service, remoteProcedure, args, instanceIdTo, instanceIdFrom) {
@@ -42,7 +43,7 @@ function query(connection, service, remoteProcedure, args, instanceIdTo, instanc
     instanceIdFrom: instanceIdFrom
   }
 
-  connection.write('MSG_QUERY ' + query);
+  connection.write('MSG_QUERY ' + JSON.stringify(query));
 }
 
 //Sends a message to the Mycroft global message board.
