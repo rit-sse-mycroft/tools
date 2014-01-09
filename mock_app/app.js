@@ -13,14 +13,14 @@ function parse_message(msg){
       data = JSON.parse(msg.substr(index + 1));
     }
     catch(err) {
-      return connection.write("MSG_MALFORMED \n" + err);
+      return connection.write('MSG_MALFORMED \n' + err);
     }
   }
   else { // no body was supplied
     type = msg;
   }
   if (type === '') {
-    return connection.write("MSG_MALFORMED \n" + err);
+    return connection.write('MSG_MALFORMED \n' + err);
   }
   return {type: type, data: data};
 }
@@ -82,14 +82,14 @@ function broadcast(connection, instanceId, content) {
 // Checks if the manifest was validated and returns dependencies
 function manifestCheck(data) {
   var parsed = parse_message(data);
-  if (parsed.type == 'APP_MANIFEST_OK' || parsed.type == 'APP_MANIFEST_FAIL') {
+  if (parsed.type === 'APP_MANIFEST_OK' || parsed.type === 'APP_MANIFEST_FAIL') {
     console.log('Response type: ' +  parsed.type);
     console.log('Response recieved: ' + JSON.stringify(parsed.data));
 
     if (parsed.type === 'APP_MANIFEST_OK') {
       console.log('Manifest Validated');
       return parsed.data.dependencies;
-    } else if (parsed.type === 'APP_MANIFEST_FAIL') {
+    } else {
       throw 'Invalid application manifest';
     }
   }
