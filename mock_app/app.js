@@ -6,7 +6,7 @@ var MYCROFT_PORT = 1847;
 function connectToMycroft() {
   client = net.connect({port: MYCROFT_PORT}, function(err){
     if (err) {
-      console.error("There was an error");
+      console.error('There was an error');
     }
   });
   return client;
@@ -19,8 +19,9 @@ function sendManifest(connection, path) {
     var manifest = require(path);
   }
   catch(err) {
-    console.error("Invalid file path");
+    console.error('Invalid file path');
   }
+  console.log('Sending Manifest');
   connection.write('APP_MANIFEST ' + JSON.stringify(manifest));
 }
 
