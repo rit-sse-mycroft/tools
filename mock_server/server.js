@@ -61,9 +61,15 @@ function register(cli, manifest){
     return cli.write("E_INST " + JSON.stringify({msg: "Instance name: " + id +" taken!"}))
   }
 
-  instances[id] = 'up';
+  instances[id] = {
+    'socket' : cli,
+    'manifest' : manifest,
+    'status' : up
+  };
+  addDependents(manifest);
+  dependencyAlerter(manifest);
   cli.on('end', function(){
-    //notify id disconnected...
+    dependencyRemovedAlerter(manifest);
     delete instances[id];
   });
 
@@ -91,5 +97,24 @@ function dependencyAlerter(manifest){
     if(semver.satisfies(manifest.version, dependencyTracker[name][1])){
       console.log("Version is compatible"); //TODO alert that new dependencies is avaliable
     }
+  }
+}
+//alert apps if a dependency goes down
+function dependencyRemovedAlerter(manifest){
+  var name = manifest.name;
+  var dependents = dependencyTracker[name];
+  for(var dependent in dependents){
+    if(semver.satisfies(manifest.version, dependencyTracker[name][1])){
+      console.log(name + " is down"); //TODO alert that dependencies is now unavaliable
+    }
+  }
+}
+//remove the dependents when offline
+function removeDependents(manifest){
+  for(var dependency in manifest.dependencies){
+    if(!(dependency in dependencyTracker)){
+      dependencyTracker[dependency] = {}
+    }
+    delete dependencyTracker[dependency];
   }
 }
