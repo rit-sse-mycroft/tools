@@ -18,75 +18,88 @@ var exec = require('child_process').exec;
 var fs  = require('fs');
 var path = require('path');
 
-var _help = '';
-_help += 'USAGE: node gen_client.js [KEYLENGTH] CLIENT_NAME\n';
-_help += '\n';
-_help += 'KEYLENGTH - the number of bits to use in the RSA key\n';
-_help += 'CLIENT_NAME - a name to use for output file naming \n';
+// called only when run as a script, not when imported elsewhere
+function main() {
+  var _help = '';
+  _help += 'USAGE: node gen_client.js [KEYLENGTH] CLIENT_NAME\n';
+  _help += '\n';
+  _help += 'KEYLENGTH - the number of bits to use in the RSA key\n';
+  _help += 'CLIENT_NAME - a name to use for output file naming \n';
 
-// make sure at least 1 arg was supplied
-if (process.argv.length < 3) {
-  console.error('ERROR: incorrect arguments');
-  console.error(_help);
-  process.exit(1);
-}
-
-// these variables assume no key length was supplied
-var keylen = 2048;
-var client = process.argv[2];
-
-// handle the args
-if (process.argv.length === 4) {
-  keylen = process.argv[2];
-  client = process.argv[3];
-  if (isNaN(keylen)) {
-    console.error('ERROR: invalid key length');
+  // make sure at least 1 arg was supplied
+  if (process.argv.length < 3) {
+    console.error('ERROR: incorrect arguments');
     console.error(_help);
     process.exit(1);
   }
+
+  // these variables assume no key length was supplied
+  var keylen = 2048;
+  var client = process.argv[2];
+
+  // handle the args
+  if (process.argv.length === 4) {
+    keylen = process.argv[2];
+    client = process.argv[3];
+    if (isNaN(keylen)) {
+      console.error('ERROR: invalid key length');
+      console.error(_help);
+      process.exit(1);
+    }
+  }
+  else {
+    console.warn('WARNING: using default RSA key length of 2048');
+  }
+  genClientCredentials(keylen, client, '.');
 }
-else {
-  console.warn('WARNING: using default RSA key length of 2048');
-}
 
-var keyfile = client + '.key';
-var csr = client + '.csr';
-var crt = client + '.crt';
-
-var genrsaCmd = 'openssl genrsa -out ' + keyfile + ' ' + keylen;
-
-var csrReqCmd = 'openssl req -new -key ' + keyfile + ' ';
-csrReqCmd += '-out ' + csr + ' ';
-csrReqCmd += '-subj \"/C=US/ST=NY/L=Rochester/O=SSE/CN=*\"';
-
-var caCmd = 'openssl ca -config ' + path.join('CA', 'ca.conf') + ' ';
-caCmd += '-batch ';
-caCmd += '-in ' + csr + ' ';
-caCmd += '-cert ' + path.join('CA', 'ca.crt') + ' ';
-caCmd += '-keyfile ' + path.join('CA', 'ca.key') + ' ';
-caCmd += '-out ' + crt;
-
-function genCredentials() {
+// generates credential files which are signed by the CA's certs
+// keylen - length of RSA key
+// clientName - name of the client to use for file generation.
+//              for example, clientName='foo' generates
+//              foo.key and foo.crt
+// dir - directory that contains the CA directory
+// NOTE: this runs asynchronously
+function genClientCredentials(keylen, clientName, dir) {
+  var keyfile = path.join(dir, clientName+'.key');
+  var genrsaCmd = 'openssl genrsa -out ' + keyfile + ' ' + keylen;
   exec(genrsaCmd, function genRSACB() {
-    genReqCmd();
+    genReqCmd(keylen, clientName, dir);
   });
 }
+module.exports.genClientCredentials = genClientCredentials;
 
-function genReqCmd() {
+function genReqCmd(keylen, clientName, dir) {
+  var keyfile = path.join(dir, clientName+'.key');
+  var csr = path.join(dir, clientName+'.csr');
+  var csrReqCmd = 'openssl req -new -key ' + keyfile + ' ';
+  csrReqCmd += '-out ' + csr + ' ';
+  csrReqCmd += '-subj \"/C=US/ST=NY/L=Rochester/O=SSE/CN=*\"';
   exec(csrReqCmd, function genReqCB() {
-    signCrtCmd();
+    signCrtCmd(keylen, clientName, dir);
   });
 }
 
-function signCrtCmd() {
+function signCrtCmd(keylen, clientName, dir) {
+  var csr = path.join(dir, clientName+'.csr');
+  var crt = path.join(dir, clientName+'.crt');
+  var caCmd = 'openssl ca -config ' + path.join(dir, 'CA', 'ca.conf') + ' ';
+  caCmd += '-batch ';
+  caCmd += '-in ' + csr + ' ';
+  caCmd += '-cert ' + path.join(dir, 'CA', 'ca.crt') + ' ';
+  caCmd += '-keyfile ' + path.join(dir, 'CA', 'ca.key') + ' ';
+  caCmd += '-out ' + crt;
   exec(caCmd, function done() {
-    cleanup();
+    cleanup(clientName, dir);
   });
 }
 
-function cleanup() {
-  fs.unlinkSync(csr);
-    console.log('done!');
+function cleanup(clientName, dir) {
+  fs.unlinkSync(path.join(dir, clientName + '.csr'));
+  console.log('Generated client credentials');
 }
 
-genCredentials();
+// run the main function if this is run as a script
+if (require.main === module) {
+  main();
+}
