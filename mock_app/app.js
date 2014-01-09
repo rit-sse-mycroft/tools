@@ -33,6 +33,36 @@ function sendMessage(connection, instanceId, content) {
   connection.write('MESSAGE ' + JSON.stringify(message));
 }
 
+function manifestCheck(data, content) {
+  var dataMatch = /MANIFEST_(OK||FAIL) (.*)/.exec(data),
+      message = '',
+      data;
+
+  if (dataMatch.length != 3) {
+    message = 'invalid json response';
+  } else {
+    data = JSON.parse(dataMatch[2]);
+    console.log('Response type: MANIFEST_' + dataMatch[1]);
+    console.log('Response recieved:');
+    console.log(data);
+
+    if (dataMatch[1] === 'OK') {
+      var messageBoard = net.connect({ port: data.dataPort }, function (err) {
+        console.log('Connecting to Message Board...');
+        if (err) {
+          console.error('Error connecting to Message Board');
+        }
+      });
+      app.sendMessage(messageBoard, data.instanceId, content);
+    } else if (dataMatch[1] === 'FAIL') {
+      message = 'Manifest validation failed';
+    } else {
+      message = 'something went wrong';
+    }
+  }
+  console.log(message);
+}
+
 exports.connectToMycroft = connectToMycroft;
 exports.sendManifest = sendManifest;
 exports.sendMessage = sendMessage;
