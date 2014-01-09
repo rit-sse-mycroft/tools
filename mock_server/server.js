@@ -59,6 +59,7 @@ function register(cli, manifest){
   var validation = validateManifest(manifest);
   var isValidMan = validation.length === 0;
   if(!isValidMan){
+    console.log('Invalid manifest from app id ' + id);
     return cli.write("APP_MANIFEST_FAIL " + JSON.stringify(validation)); //TODO: STANDARDIZE
   }
 
@@ -85,12 +86,14 @@ function register(cli, manifest){
   dependencyAlerter(manifest);
   cli.on('end', function(){
     dependencyRemovedAlerter(manifest);
+    removeDependents(manifest);
     delete instances[id];
   });
 
   cli.write("APP_MANIFEST_OK " + JSON.stringify({
     instanceId: id
   }));
+  console.log('App id ' + id + ' connected');
 }
 
 function goUp(cli, data) {
@@ -112,7 +115,7 @@ function addDependents(manifest){
     if(!(dependency in dependencyTracker)){
       dependencyTracker[dependency] = {}
     }
-    dependencyTracker[dependency] = [manifest.name, manifest.dependencies[dependency]];
+    dependencyTracker[dependency][manifest.name] = manifest.dependencies[dependency];
   }
 }
 //notify a new 'dependent' is avaliable
@@ -137,10 +140,9 @@ function dependencyRemovedAlerter(manifest){
 }
 //remove the dependents when offline
 function removeDependents(manifest){
-  for(var dependency in manifest.dependencies){
-    if(!(dependency in dependencyTracker)){
-      dependencyTracker[dependency] = {}
+    for(var dependency in manifest.dependencies){
+      if((dependency in dependencyTracker)){
+        delete dependencyTracker[dependency][manifest.name];
+      }
     }
-    delete dependencyTracker[dependency];
-  }
 }
