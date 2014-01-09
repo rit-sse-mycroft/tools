@@ -92,17 +92,16 @@ function register(cli, manifest){
     delete apps[id];
   });
 
-  var depStatus = {}; // {'name':'up/down', ...}
+  var depStatus = {}; // {'name':[], ...}
   var myDeps = manifest['dependencies'];
   for (var depName in myDeps) { // iterate over what dependencies I need
-    depStatus[depName] = 'down';
+    depStatus[depName] = [];
     for(var appID in apps) { // iterate over all apps
       var isNotMe = !(appID === id);
       var isUp    = apps[appID]['status'] === 'up';
       var matchesVersion = semver.satisfies(appID['version'], myDeps[depName]);
-      if (isNotMe && isUp && matchesVersion) {
-        depStatus[depName] = 'up';
-        break;
+      if (isNotMe && isUp && matchesVersion) { // if this should be told
+        depStatus[depName].append(appID);
       }
     }
   }
