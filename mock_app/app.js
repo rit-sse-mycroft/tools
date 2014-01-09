@@ -24,10 +24,17 @@ function sendManifest(connection, path) {
 }
 
 function join(connection, instanceId) {
-  join_message = {
+  joinMessage = {
     instanceId: instanceId
   }
-  connection.write('MSG_JOIN ' + join_message)
+  connection.write('MSG_JOIN ' + joinMessage);
+}
+
+function leave(connection, instanceId) {
+  leaveMessage = {
+    instanceId: instanceId
+  }
+  connection.write('MSG_OFFLINE ' + leaveMessage);
 }
 
 //Sends a message to the Mycroft global message board.
