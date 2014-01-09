@@ -5,7 +5,7 @@ var net = require('net'),
 app.sendManifest(client, './app.json');
 
 client.on('data', function (data) {
-  app.manifestCheck(data, 'pickle unicorns');
+  messageBoard = app.manifestCheck(data, 'pickle unicorns');
 });
 
 

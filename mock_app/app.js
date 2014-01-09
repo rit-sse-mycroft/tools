@@ -39,7 +39,7 @@ function manifestCheck(data, content) {
       data;
 
   if (dataMatch.length != 3) {
-    message = 'invalid json response';
+    throw "Received invalid JSON response";
   } else {
     data = JSON.parse(dataMatch[2]);
     console.log('Response type: MANIFEST_' + dataMatch[1]);
@@ -50,19 +50,19 @@ function manifestCheck(data, content) {
       var messageBoard = net.connect({ port: data.dataPort }, function (err) {
         console.log('Connecting to Message Board...');
         if (err) {
-          console.error('Error connecting to Message Board');
+          throw "error connecting to message board";
         }
       });
-      app.sendMessage(messageBoard, data.instanceId, content);
     } else if (dataMatch[1] === 'FAIL') {
-      message = 'Manifest validation failed';
+      throw "Invalid application manifest";
     } else {
-      message = 'something went wrong';
+      throw "Unexpected error, manifest validation failed";
     }
   }
-  console.log(message);
+  return messageBoard;
 }
 
 exports.connectToMycroft = connectToMycroft;
 exports.sendManifest = sendManifest;
 exports.sendMessage = sendMessage;
+exports.manifestCheck = manifestCheck;
