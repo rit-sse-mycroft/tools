@@ -59,23 +59,21 @@ function down(connection) {
   connection.write('APP_DOWN');
 }
 
-function query(connection, service, remoteProcedure, args, instanceIdTo, instanceIdFrom) {
+function query(connection, service, remoteProcedure, args, instanceId) {
   queryMessage = {
     id: uuid.v4(),
     service: service,
     remoteProcedure: remoteProcedure,
     args: args,
-    instanceIdTo: instanceIdTo,
-    instanceIdFrom: instanceIdFrom
+    instanceId: instanceId
   };
 
   connection.write('MSG_QUERY ' + JSON.stringify(query));
 }
 
 //Sends a message to the Mycroft global message board.
-function broadcast(connection, instanceId, content) {
+function broadcast(connection, content) {
   message = {
-    instanceId: instanceId,
     content: content
   };
   connection.write('MSG_BROADCAST ' + JSON.stringify(message));
