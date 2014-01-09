@@ -120,20 +120,25 @@ function addDependents(manifest){
 function dependencyAlerter(manifest){
   var name = manifest.name;
   var dependents = dependencyTracker[name];
+  var dependable = {};
   for(var dependent in dependents){
-    if(semver.satisfies(manifest.version, dependencyTracker[name][1])){
-      console.log("Version is compatible"); //TODO alert that new dependencies is avaliable
+    if(semver.satisfies(manifest.version, dependencyTracker[name][dependent])){
+      dependable[dependent] = manifest.version;
     }
+    cli.write("These apps: " + dependable + " can now work with " + manifest.name + " version " + manifest.version);
   }
 }
 //alert apps if a dependency goes down
 function dependencyRemovedAlerter(manifest){
   var name = manifest.name;
   var dependents = dependencyTracker[name];
+  var dependable = {};
   for(var dependent in dependents){
-    if(semver.satisfies(manifest.version, dependencyTracker[name][1])){
-      console.log(name + " is down"); //TODO alert that dependencies is now unavaliable
+    if(semver.satisfies(manifest.version, dependencyTracker[name][dependent])){
+      dependable[dependent] = manifest.version;
     }
+    cli.write("These apps: " + dependable + " can no longer work with " + manifest.name + " version " + manifest.version + " down.");
+
   }
 }
 //remove the dependents when offline
