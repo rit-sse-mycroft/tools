@@ -15,10 +15,10 @@ var serv = net.createServer(function(cli) {
     var index = msg.indexOf(' {');
     var type = '';
     var data = {};
-    if (index > 0) { // if a body was supplied
-      msg.substr(0, msg.indexOf(' {'));
+    if (index >= 0) { // if a body was supplied
+      type = msg.substr(0, index);
       try {
-        data = JSON.parse(msg.substr(msg.indexOf(' {') + 1));
+        data = JSON.parse(msg.substr(index + 1));
       }
       catch(err) {
         return cli.write("MSG_MALFORMED \n" + err);
@@ -26,6 +26,9 @@ var serv = net.createServer(function(cli) {
     }
     else { // no body was supplied
       type = msg;
+    }
+    if (type === '') {
+      return cli.write("MSG_MALFORMED \n" + err);
     }
     handleMsg(type, data, cli);
   });
