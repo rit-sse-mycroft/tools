@@ -89,8 +89,7 @@ function register(cli, manifest){
   });
 
   cli.write("APP_MANIFEST_OK " + JSON.stringify({
-    instanceId: id,
-    dataPort: 4000
+    instanceId: id
   }));
 }
 
