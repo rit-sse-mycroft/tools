@@ -59,7 +59,7 @@ function register(cli, manifest){
   var validation = validateManifest(manifest);
   var isValidMan = validation.length === 0;
   if(!isValidMan){
-    return cli.write("MANIFEST_FAIL " + JSON.stringify(validation)); //TODO: STANDARDIZE
+    return cli.write("APP_MANIFEST_FAIL " + JSON.stringify(validation)); //TODO: STANDARDIZE
   }
 
   // Have we seen this app before?
@@ -88,7 +88,7 @@ function register(cli, manifest){
     delete instances[id];
   });
 
-  cli.write("MANIFEST_OK " + JSON.stringify({
+  cli.write("APP_MANIFEST_OK " + JSON.stringify({
     instanceId: id,
     dataPort: 4000
   }));
