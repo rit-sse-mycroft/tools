@@ -24,17 +24,11 @@ function sendManifest(connection, path) {
   connection.write('APP_MANIFEST ' + JSON.stringify(manifest));
 }
 
-function up(connection, instanceId) {
-  joinMessage = {
-    instanceId: instanceId
-  }
-  connection.write('APP_UP ' + joinMessage);
+function up(connection) {
+  connection.write('APP_UP');
 }
 
-function down(connection, instanceId) {
-  leaveMessage = {
-    instanceId: instanceId
-  }
+function down(connection) {
   connection.write('APP_DOWN ' + leaveMessage);
 }
 
@@ -90,9 +84,9 @@ function manifestCheck(data, content) {
 }
 
 exports.connectToMycroft = connectToMycroft;
+exports.sendManifest = sendManifest;
 exports.up = up;
 exports.down = down;
 exports.query = query;
-exports.sendManifest = sendManifest;
-exports.sendMessage = sendMessage;
+exports.broadcast = broadcast;
 exports.manifestCheck = manifestCheck;
