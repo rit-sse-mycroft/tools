@@ -126,6 +126,7 @@ function dependencyAlerter(manifest){
     }
   }
 }
+//alert apps if a dependency goes down
 function dependencyRemovedAlerter(manifest){
   var name = manifest.name;
   var dependents = dependencyTracker[name];
@@ -135,5 +136,12 @@ function dependencyRemovedAlerter(manifest){
     }
   }
 }
-
-
+//remove the dependents when offline
+function removeDependents(manifest){
+  for(var dependency in manifest.dependencies){
+    if(!(dependency in dependencyTracker)){
+      dependencyTracker[dependency] = {}
+    }
+    delete dependencyTracker[dependency];
+  }
+}
