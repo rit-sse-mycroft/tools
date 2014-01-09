@@ -2,6 +2,7 @@
     "version": "0.0.1",
     "name": "test-service",
     "displayname": "Mycroft test service",
+    "instanceID": "mockapp1",
     "type": [ "microphone", "speaker" ],
     "API": "0",
     "description": "It does odd stuff like testing or things",
