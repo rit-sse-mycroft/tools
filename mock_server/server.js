@@ -78,6 +78,7 @@ function register(cli, manifest){
   }
 
   cli.instanceId = manifest.instanceId;
+  cli.manifest = manifest;
 
   apps[id] = {
     'socket' : cli,
@@ -86,8 +87,7 @@ function register(cli, manifest){
   };
   addDependents(manifest);
   cli.on('end', function(){
-    dependencyRemovedAlerter(manifest, cli);
-    removeDependents(manifest);
+    dependencyRemovedAlerter(cli);
     delete apps[id];
   });
 
@@ -126,53 +126,55 @@ function goDown(cli, data) {
 }
 
 // {
-//   'type' : {
+//   'capability' : {
 //     'appName' : 'version',
 //     ...
 //   }
 //   ...
 // }
-// The appName depends on this type at this version
+// The appName depends on this capability at this version
 var dependencyTracker = {};
 //add in new dependents from this manifest file
 function addDependents(manifest){
-  for(var type in manifest.dependencies){
-    if(!(type in dependencyTracker)){
-      dependencyTracker[type] = {}
+  for(var capabilityNeeded in manifest.dependencies){
+    if(!(capabilityNeeded in dependencyTracker)){
+      dependencyTracker[capabilityNeeded] = {}
     }
-    dependencyTracker[type][manifest.name] = manifest.dependencies[type];
+    dependencyTracker[capabilityNeeded][manifest.name] = manifest.dependencies[capabilityNeeded];
+  }
+}
+// send the message msg to everyone who depends on the given client (a socket)
+function sendMessageToDependants(cli, msg) {
+  var capabilities = manifest.capabilities;
+  for(var capability in capabilities) {
+    var version = capabilities[capability];
+    for(var appID in apps) {
+      for(var capabilityNeeded in apps[appID]['dependencies']) {
+        var fulfils = capability === capabilityNeeded;
+        var versionGood = semver.satisfies(version,
+                                           apps[appID]['dependencies'][capability]
+                                          );
+        if(fulfils && versionGood) {
+          // whoa we need to notify this app!
+          cli.write(msg);
+        }
+      }
+    }
   }
 }
 //notify a new 'dependent' is avaliable
-function dependencyAlerter(manifest, cli){
-  var type = manifest.type;
-  var dependents = dependencyTracker[name];
-  var dependable = {};
-  for(var dependent in dependents){
-    if(semver.satisfies(manifest.version, dependencyTracker[name][dependent])){
-      dependable[dependent] = manifest.version;
-    }
-    cli.write("These apps: " + dependable + " can now work with " + manifest.name + " version " + manifest.version);
-  }
+function dependencyAlerter(cli){
+  var msg = 'APP_UP ' + JSON.stringify({
+    instanceId: cli.instanceId,
+    capabilities: cli['manifest']['capabilities']
+  });
+  sendMessageToDependants(cli, msg);
 }
 //alert apps if a dependency goes down
-function dependencyRemovedAlerter(manifest, cli){
-  var name = manifest.name;
-  var dependents = dependencyTracker[name];
-  var dependable = {};
-  for(var dependent in dependents){
-    if(semver.satisfies(manifest.version, dependencyTracker[name][dependent])){
-      dependable[dependent] = manifest.version;
-    }
-    cli.write("These apps: " + dependable + " can no longer work with " + manifest.name + " version " + manifest.version + " down.");
-
-  }
-}
-//remove the dependents when offline
-function removeDependents(manifest){
-    for(var dependency in manifest.dependencies){
-      if((dependency in dependencyTracker)){
-        delete dependencyTracker[dependency][manifest.name];
-      }
-    }
+function dependencyRemovedAlerter(cli){
+  var msg = 'APP_DOWN ' + JSON.stringify({
+    instanceId: cli.instanceId,
+    capabilities: cli['manifest']['capabilities']
+  });
+  sendMessageToDependants(cli, msg);
 }
