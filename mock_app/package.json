@@ -1,0 +1,18 @@
+{
+  "name": "mock_app",
+  "version": "0.0.1",
+  "description": "Mycroft mock app for testing",
+  "main": "mock_app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "author": "RIT-SSE",
+  "license": "-",
+  "dependencies": {
+    "mocha": "~1.16.2",
+    "uuid": "~1.4.1"
+  }
+}
