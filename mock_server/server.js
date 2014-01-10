@@ -21,23 +21,30 @@ function handleClient(cli) {
 
   cli.on('data', function(msg){
   	msg = msg.toString();
-    var index = msg.indexOf(' {');
     var type = '';
     var data = {};
+    var verbStart = msg.indexOf('\n');
+    msg = msg.substr(verbStart+1);
+    var index = msg.indexOf(' {');
     if (index >= 0) { // if a body was supplied
       type = msg.substr(0, index);
       try {
-        data = JSON.parse(msg.substr(index + 1));
+        var toParse = msg.substr(index+1);
+        data = JSON.parse(toParse);
       }
       catch(err) {
-        return cli.write("MSG_MALFORMED \n" + err);
+        console.log('malformed message 01');
+        sendMessage(cli, "MSG_MALFORMED \n" + err);
+        return;
       }
     }
     else { // no body was supplied
       type = msg;
     }
     if (type === '') {
-      return cli.write("MSG_MALFORMED \n" + err);
+      console.log('malformed message 02');
+      sendMessage(cli, "MSG_MALFORMED \n" + err);
+      return;
     }
     handleMsg(type, data, cli);
   });
@@ -65,7 +72,6 @@ serv.listen(1847, function() {
   console.log("Mycroft mock server listening on port 1847");
 });
 
-
 function handleMsg(type, data, cli){
   if(type === 'APP_MANIFEST'){
     register(cli, data);
@@ -78,6 +84,12 @@ function handleMsg(type, data, cli){
   }
 }
 
+function sendMessage(cli, msg) {
+  var bytes = Buffer.byteLength(msg, 'utf8');
+  var msg = bytes + '\n' + msg;
+  cli.write(msg);
+}
+
 // Lazy app state tracker :D
 // { 'instance_name' : {...}, ... }
 var apps = {};
@@ -88,7 +100,7 @@ function register(cli, manifest){
   var isValidMan = validation.length === 0;
   if(!isValidMan){
     console.log('Invalid manifest from app id ' + id);
-    return cli.write("APP_MANIFEST_FAIL " + JSON.stringify(validation)); //TODO: STANDARDIZE
+    return sendMessage(cli, "APP_MANIFEST_FAIL " + JSON.stringify(validation)); //TODO: STANDARDIZE
   }
 
   // Have we seen this app before?
@@ -100,7 +112,7 @@ function register(cli, manifest){
   id = manifest.instanceId || uuid.v4();
 
   if(id in apps){
-    return cli.write("E_INST " + JSON.stringify({msg: "Instance name: " + id +" taken!"}))
+    return sendMessage(cli, "E_INST " + JSON.stringify({msg: "Instance name: " + id +" taken!"}))
   }
 
   cli.instanceId = manifest.instanceId;
@@ -130,7 +142,7 @@ function register(cli, manifest){
       }
     }
   }
-  cli.write("APP_MANIFEST_OK " + JSON.stringify({
+  sendMessage(cli, "APP_MANIFEST_OK " + JSON.stringify({
     instanceId: id,
     dependencies: depStatus
   }));
@@ -182,7 +194,7 @@ function sendMessageToDependants(cli, msg) {
                                           );
         if(fulfils && versionGood) {
           // whoa we need to notify this app!
-          cli.write(msg);
+          sendMessage(cli, msg);
         }
       }
     }
