@@ -1,18 +1,11 @@
 var tls = require('tls');
+var net = require('net');
 var validateManifest = require('../manifest_verifier/valid_manifest');
 var uuid = require('uuid');
 var semver = require('semver');
 var fs = require('fs');
 
-var servOptions = {
-  key: fs.readFileSync('mycroft.key'),
-  cert: fs.readFileSync('mycroft.crt'),
-  requestCert: true,
-  ca: [ fs.readFileSync('mycroft.crt') ],
-  rejectUnauthorized: true
-};
-
-var serv = tls.createServer(servOptions, function(cli) {
+function handleClient(cli) {
   console.log('server connected');
   if (cli.authorized) {
     console.log("Authorized");
@@ -49,7 +42,24 @@ var serv = tls.createServer(servOptions, function(cli) {
     handleMsg(type, data, cli);
   });
 
-});
+}
+
+var serv = null;
+if (process.argv.length === 3 && process.argv[2] === '--no-tls') {
+  console.log("Not using TLS");
+  serv = net.createServer(handleClient);
+}
+else {
+  console.log("Using TLS");
+  var servOptions = {
+    key: fs.readFileSync('mycroft.key'),
+    cert: fs.readFileSync('mycroft.crt'),
+    requestCert: true,
+    ca: [ fs.readFileSync('mycroft.crt') ],
+    rejectUnauthorized: true
+  };
+  serv = tls.createServer(servOptions, handleClient);
+}
 
 serv.listen(1847, function() {
   console.log("Mycroft mock server listening on port 1847");
