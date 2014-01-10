@@ -1,10 +1,26 @@
-var net = require('net');
+var tls = require('tls');
 var validateManifest = require('../manifest_verifier/valid_manifest');
 var uuid = require('uuid');
 var semver = require('semver');
+var fs = require('fs');
 
-var serv = net.createServer(function(cli) {
-  console.log('Server connected');
+var servOptions = {
+  key: fs.readFileSync('mycroft.key'),
+  cert: fs.readFileSync('mycroft.crt'),
+  requestCert: true,
+  ca: [ fs.readFileSync('mycroft.crt') ],
+  rejectUnauthorized: true
+};
+
+var serv = tls.createServer(servOptions, function(cli) {
+  console.log('server connected');
+  if (cli.authorized) {
+    console.log("Authorized");
+  }
+  else {
+    console.log("Unauthorized");
+    console.log(cli.authorizationError);
+  }
 
   cli.on('end', function(){
     console.log('Server disconnected');
