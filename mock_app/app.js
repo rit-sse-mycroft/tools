@@ -6,23 +6,22 @@ var MYCROFT_PORT = 1847;
 
 function parseMessage(msg){
   msg = msg.toString();
-  var index = msg.indexOf(' {');
-  var type = '';
-  var data = {};
-  if (index >= 0) { // if a body was supplied
-    type = msg.substr(0, index);
-    try {
-      data = JSON.parse(msg.substr(index + 1));
+
+  var re = /(\d+)\n(.*) ({[^]*})/;
+  var msgSplit = re.exec(msg);
+
+  if (!msgSplit) { //There is no body to this message
+    re = /(\d+)\n(.*)/
+    msgSplit = re.exec(msg)
+    if (!msgSplit) { //RE still doesn't match... something is wrong.
+      throw "Error: Malformed Message"
     }
-    catch(err) {
-      return connection.write('MSG_MALFORMED \n' + err);
-    }
-  }
-  else { // no body was supplied
-    type = msg;
-  }
-  if (type === '') {
-    return connection.write('MSG_MALFORMED \n' + err);
+    var type = msgSplit[2];
+    var data = {};
+
+  } else {
+    var type = msgSplit[2];
+    var data = JSON.parse(msgSplit[3]);
   }
   return {type: type, data: data};
 }
@@ -32,8 +31,10 @@ function connectToMycroft() {
   var client = null;
   if (process.argv.length === 3 && process.argv[2] === '--no-tls') {
     console.log("Not using TLS");
-    client = net.connect(function(err){
-      console.error('There was an error establishing connection');
+    client = net.connect({port: 1847}, function(err){
+      if (err) {
+        console.error('There was an error establishing connection');
+      }
     });
   }
   else {
