@@ -1,4 +1,5 @@
 var tls = require('tls');
+var net = require('net');
 var uuid = require('uuid');
 var fs = require('fs');
 var MYCROFT_PORT = 1847;
@@ -28,18 +29,28 @@ function parseMessage(msg){
 
 //path is the path to the json manifest
 function connectToMycroft() {
-  var connectOptions = {
-    key: fs.readFileSync('mock_app.key'),
-    cert: fs.readFileSync('mock_app.crt'),
-    ca: [ fs.readFileSync('ca.crt') ],
-    rejectUnauthorized: false,
-    port: MYCROFT_PORT
-  };
-  client = tls.connect(connectOptions, function(err){
-    if (err) {
-      console.error('There was an error in establishing TLS connection');
-    }
-  });
+  var client = null;
+  if (process.argv.length === 3 && process.argv[2] === '--no-tls') {
+    console.log("Not using TLS");
+    client = net.connect(function(err){
+      console.error('There was an error establishing connection');
+    });
+  }
+  else {
+    console.log("Using TLS");
+    var connectOptions = {
+      key: fs.readFileSync('mock_app.key'),
+      cert: fs.readFileSync('mock_app.crt'),
+      ca: [ fs.readFileSync('ca.crt') ],
+      rejectUnauthorized: false,
+      port: MYCROFT_PORT
+    };
+    client = tls.connect(connectOptions, function(err){
+      if (err) {
+        console.error('There was an error in establishing TLS connection');
+      }
+    });
+  }
   console.log('Connected to Mycroft');
   return client;
 }
