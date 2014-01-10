@@ -96,6 +96,7 @@ function signCrtCmd(keylen, clientName, dir) {
 
 function cleanup(clientName, dir) {
   fs.unlinkSync(path.join(dir, clientName + '.csr'));
+  fs.unlinkSync(path.join(dir, '.rnd'));
   console.log('Generated client credentials');
 }
 
