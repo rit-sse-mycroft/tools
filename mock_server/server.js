@@ -19,34 +19,54 @@ function handleClient(cli) {
     console.log('Server disconnected');
   });
 
+  cli._unconsumed = '';
   cli.on('data', function(msg){
-  	msg = msg.toString();
-    var type = '';
-    var data = {};
-    var verbStart = msg.indexOf('\n');
-    msg = msg.substr(verbStart+1);
-    var index = msg.indexOf(' {');
-    if (index >= 0) { // if a body was supplied
-      type = msg.substr(0, index);
-      try {
-        var toParse = msg.substr(index+1);
-        data = JSON.parse(toParse);
+  	cli._unconsumed += msg.toString().trim();
+    while (cli._unconsumed != '') {
+      // get the message-length to read
+      var verbStart = cli._unconsumed.indexOf('\n');
+      var msgLen = parseInt(cli._unconsumed.substr(0, verbStart));
+      // cut off the message length header from unconsumed
+      cli._unconsumed = cli._unconsumed.substr(verbStart+1);
+      // figure out how many bytes we have left to consume
+      var bytesLeft = Buffer.byteLength(cli._unconsumed, 'utf8');
+      // don't process anything if we don't have enough bytes
+      if (bytesLeft < msgLen) {
+        break;
       }
-      catch(err) {
-        console.log('malformed message 01');
+      // isolate the message we are actually handling
+      var unconsumedBuffer = new Buffer(cli._unconsumed);
+      msg = unconsumedBuffer.slice(0, msgLen).toString();
+      // store remainin stuff in unconsumed
+      cli._unconsumed = unconsumedBuffer.slice(msgLen).toString();
+      // go process this single message
+      console.log('got message');
+      console.log(msg);
+      var type = '';
+      var data = {};
+      var index = msg.indexOf(' {');
+      if (index >= 0) { // if a body was supplied
+        type = msg.substr(0, index);
+        try {
+          var toParse = msg.substr(index+1);
+          data = JSON.parse(toParse);
+        }
+        catch(err) {
+          console.log('malformed message 01');
+          sendMessage(cli, "MSG_MALFORMED \n" + err);
+          return;
+        }
+      }
+      else { // no body was supplied
+        type = msg;
+      }
+      if (type === '') {
+        console.log('malformed message 02');
         sendMessage(cli, "MSG_MALFORMED \n" + err);
         return;
       }
+      handleMsg(type, data, cli);
     }
-    else { // no body was supplied
-      type = msg;
-    }
-    if (type === '') {
-      console.log('malformed message 02');
-      sendMessage(cli, "MSG_MALFORMED \n" + err);
-      return;
-    }
-    handleMsg(type, data, cli);
   });
 
 }
@@ -103,20 +123,16 @@ function register(cli, manifest){
     return sendMessage(cli, "APP_MANIFEST_FAIL " + JSON.stringify(validation)); //TODO: STANDARDIZE
   }
 
-  // Have we seen this app before?
-  if(!(manifest.instanceId in apps)){
-    apps[manifest.instanceId] = {};
-  }
-
   // Accept provided id or create new one
   id = manifest.instanceId || uuid.v4();
 
   if(id in apps){
+    console.log('instance id already taken: ' + id);
     return sendMessage(cli, "E_INST " + JSON.stringify({msg: "Instance name: " + id +" taken!"}))
   }
 
   cli.instanceId = manifest.instanceId;
-  cli.manifest = manifest;
+  cli['manifest'] = manifest;
 
   apps[id] = {
     'socket' : cli,
@@ -150,16 +166,16 @@ function register(cli, manifest){
 }
 
 function goUp(cli, data) {
-  var id = cli.instanceId;
+  var id = cli.manifest.instanceId;
   apps[id]['status'] = 'up';
-  dependencyAlerter(cli.manifest, cli);
+  dependencyAlerter(cli);
   console.log('app id ' + id + ' just went up');
 }
 
 function goDown(cli, data) {
   var id = cli.instanceId;
   apps[id]['status'] = 'down';
-  dependencyRemovedAlerter(cli.manifest, cli);
+  dependencyRemovedAlerter(cli);
   console.log('app id ' + id + ' just went down');
 }
 
