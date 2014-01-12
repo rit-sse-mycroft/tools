@@ -66,7 +66,9 @@ function sendManifest(connection, path) {
     console.error('Invalid file path');
   }
   console.log('Sending Manifest');
-  connection.write('APP_MANIFEST ' + JSON.stringify(manifest));
+  msg = 'APP_MANIFEST ' + JSON.stringify(manifest);
+  length = Buffer.byteLength(msg, 'utf8');
+  connection.write(length + '\n' + msg);
 }
 
 function up(connection) {
