@@ -19,6 +19,7 @@ var template = {
   },
   "name": true, //required
   "displayname":false, //optional
+  "instanceId":true,
   "capabilities": function(val) {
     for (k in val) {
       if (!isSemantic(val[k])) {
