@@ -205,7 +205,7 @@ function handleQuery(cli, data) {
   // if no target was specified, this is untargeted
   if (!toInstanceIds || toInstanceIds.length === 0) {
     for (var appID in apps) {
-      var satisfies = apps[appID]['manifest']['capabilities'].indexOf(targetCapability) >= 0;
+      var satisfies = targetCapability in apps[appID]['manifest']['capabilities'];
       if (satisfies) {
         sendMessage(apps[appID]['socket'], 'MSG_QUERY ' + JSON.stringify(data));
       }
