@@ -122,6 +122,7 @@ function sendMessage(connection, type, message) {
   else message = JSON.stringify(message);
   var body = type + ' ' + message;
   var length = Buffer.byteLength(body, 'utf8');
+  console.log('Sending Message');
   console.log(length);
   console.log(body);
   connection.write(length + '\n' + body);
