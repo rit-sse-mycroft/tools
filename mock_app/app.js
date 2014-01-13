@@ -66,19 +66,17 @@ function sendManifest(connection, path) {
     console.error('Invalid file path');
   }
   console.log('Sending Manifest');
-  msg = 'APP_MANIFEST ' + JSON.stringify(manifest);
-  length = Buffer.byteLength(msg, 'utf8');
-  connection.write(length + '\n' + msg);
+  sendMessage(connection, 'APP_MANIFEST', manifest)
 }
 
 function up(connection) {
   console.log('Sending App Up');
-  connection.write('APP_UP');
+  sendMessage(connection, 'APP_UP');
 }
 
 function down(connection) {
-  console.log('Sending app down');
-  connection.write('APP_DOWN');
+  console.log('Sending App Down');
+  sendMessage(connection, 'APP_DOWN');
 }
 
 function query(connection, service, remoteProcedure, args, instanceId) {
@@ -90,7 +88,7 @@ function query(connection, service, remoteProcedure, args, instanceId) {
     instanceId: instanceId
   };
 
-  connection.write('MSG_QUERY ' + JSON.stringify(query));
+  sendMessage(connection, 'MSG_QUERY', queryMessage);
 }
 
 //Sends a message to the Mycroft global message board.
@@ -98,7 +96,7 @@ function broadcast(connection, content) {
   message = {
     content: content
   };
-  connection.write('MSG_BROADCAST ' + JSON.stringify(message));
+  sendMessage(connection, 'MSG_BROADCAST', message);
 }
 
 // Checks if the manifest was validated and returns dependencies
@@ -115,6 +113,19 @@ function manifestCheck(data) {
       throw 'Invalid application manifest';
     }
   }
+}
+
+//Sends a message of specified type. Adds byte length before message.
+//Does not need to specify a message object. (e.g. APP_UP and APP_DOWN)
+function sendMessage(connection, type, message) {
+  if (typeof(message) === 'undefined') message = '';
+  else message = JSON.stringify(message);
+  var body = type + ' ' + message;
+  var length = Buffer.byteLength(body, 'utf8');
+  console.log(length);
+  console.log(body);
+  connection.write(length + '\n' + body);
+
 }
 
 exports.parseMessage = parseMessage
