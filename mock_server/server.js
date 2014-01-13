@@ -15,8 +15,16 @@ function handleClient(cli) {
     console.log(cli.authorizationError);
   }
 
-  cli.on('end', function(){
-    console.log('Server disconnected');
+  cli.on('close', function() {
+    console.log('Connection closing');
+    if (cli['manifest']) {
+      dependencyRemovedAlerter(cli);
+      delete apps[cli['manifest']['instanceId']]
+    }
+  });
+
+  cli.on('error', function(err) {
+    console.log('caught error ' + err);
   });
 
   cli._unconsumed = '';
