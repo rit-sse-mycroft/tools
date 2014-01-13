@@ -18,7 +18,7 @@ var template = {
     return isSemantic(val);
   },
   "name": true, //required
-  "displayname":false, //optional
+  "displayName":false, //optional
   "instanceId":true,
   "capabilities": function(val) {
     for (k in val) {
