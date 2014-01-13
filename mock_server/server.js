@@ -96,11 +96,24 @@ function handleMsg(type, data, cli){
   if(type === 'APP_MANIFEST'){
     register(cli, data);
   }
-  if(type === 'APP_UP'){
+  else if(type === 'APP_UP'){
     goUp(cli, data);
   }
-  if(type === 'APP_DOWN'){
+  else if(type === 'APP_DOWN'){
     goDown(cli, data);
+  }
+  else if(type === 'MSG_QUERY') {
+    handleQuery(cli, data);
+  }
+  else if(type === 'MSG_QUERY_SUCCESS') {
+    handleQueryResponse('SUCCESS', cli, data);
+  }
+  else if(type === 'MSG_QUERY_FAIL') {
+    handleQueryResponse('FAIL', cli, data);
+  }
+  else {
+    console.log("Got unknown message type " + type + " with data:");
+    console.log(JSON.stringify(data));
   }
 }
 
@@ -108,13 +121,18 @@ function sendMessage(cli, msg) {
   var bytes = Buffer.byteLength(msg, 'utf8');
   var msg = bytes + '\n' + msg;
   cli.write(msg);
+  console.log("sent message:");
+  console.log(msg);
 }
 
 // Lazy app state tracker :D
 // { 'instance_name' : {...}, ... }
 var apps = {};
+// Lazy message query/response tracker
+// { uuid : {from: cli}, ... }
+var messages = {};
 
-function register(cli, manifest){
+function register(cli, manifest) {
   var id;
   var validation = validateManifest(manifest);
   var isValidMan = validation.length === 0;
@@ -177,6 +195,35 @@ function goDown(cli, data) {
   apps[id]['status'] = 'down';
   dependencyRemovedAlerter(cli);
   console.log('app id ' + id + ' just went down');
+}
+
+function handleQuery(cli, data) {
+  var fromInstanceId = cli['manifest']['instanceId'];
+  var toInstanceIds = data['instanceId'];
+  var targetCapability = data['capability'];
+  messages[data['id']] = {from: cli};
+  // if no target was specified, this is untargeted
+  if (!toInstanceIds || toInstanceIds.length === 0) {
+    for (var appID in apps) {
+      var satisfies = apps[appID]['manifest']['capabilities'].indexOf(targetCapability) >= 0;
+      if (satisfies) {
+        sendMessage(apps[appID]['socket'], 'MSG_QUERY ' + JSON.stringify(data));
+      }
+    }
+  }
+  // else this is targeted, so way easier!
+  else {
+    for (var i=0; i<toInstanceIds.length; i++) {
+      sendMessage(apps[toInstanceIds[i]]['socket'], 'MSG_QUERY ' + JSON.stringify(data));
+    }
+  }
+}
+
+// status is either 'SUCCESS' or 'FAIL'
+function hanleQueryResponse(status, cli, data) {
+  data.instanceId = cli['manifest']['instanceId'];
+  var id = data['id'];
+  sendMessage(cli, 'MSG_QUERY_' + status + ' ' + JSON.stringify(data));
 }
 
 // {
