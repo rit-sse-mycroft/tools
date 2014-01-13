@@ -2,7 +2,7 @@
     "version": "0.0.1",
     "name": "test-service",
     "displayname": "Mycroft test service",
-    "instanceID": "mockapp1",
+    "instanceId": "mockapp1",
     "capabilities": {
       "microphone": "1.0.0",
       "speakers": "1.0.0"
