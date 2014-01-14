@@ -122,7 +122,7 @@ function manifestCheck(data) {
 function sendMessage(connection, type, message) {
   if (typeof(message) === 'undefined') message = '';
   else message = JSON.stringify(message);
-  var body = type + ' ' + message;
+  var body = (type + ' ' + message).trim();
   var length = Buffer.byteLength(body, 'utf8');
   console.log('Sending Message');
   console.log(length);
