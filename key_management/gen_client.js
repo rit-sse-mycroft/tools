@@ -74,7 +74,7 @@ function genReqCmd(keylen, clientName, dir) {
   var csr = path.join(dir, clientName+'.csr');
   var csrReqCmd = 'openssl req -new -key ' + keyfile + ' ';
   csrReqCmd += '-out ' + csr + ' ';
-  csrReqCmd += '-subj \"/C=US/ST=NY/L=Rochester/O=SSE/CN=*\"';
+  csrReqCmd += '-subj \"/O=DO_NOT_TRUST/CN=DO_NOT_TRUST_Mycroft_Test_Client\"';
   exec(csrReqCmd, function genReqCB() {
     signCrtCmd(keylen, clientName, dir);
   });
@@ -96,7 +96,10 @@ function signCrtCmd(keylen, clientName, dir) {
 
 function cleanup(clientName, dir) {
   fs.unlinkSync(path.join(dir, clientName + '.csr'));
-  fs.unlinkSync(path.join(dir, '.rnd'));
+  try {
+      fs.unlinkSync(path.join(dir, '.rnd'));
+  } catch(e) { }
+
   console.log('Generated client credentials');
 }
 
