@@ -100,8 +100,8 @@ function runOpenSSL(keylen, dir) {
   var cmd = 'openssl ';
   cmd += 'req -new -newkey ';
   cmd += 'rsa:'+keylen + ' ';
-  cmd += '-days 3650 -nodes -x509 '
-  cmd += '-subj \"/C=US/ST=NY/L=Rochester/O=SSE-CA/CN=*\" ';
+  cmd += '-days 30 -nodes -x509 '
+  cmd += '-subj \"/O=DO_NOT_TRUST/CN=DO_NOT_TRUST_Mycroft_Test\" ';
   cmd += '-keyout ' + path.join(dir, 'ca.key') + ' ';
   cmd += '-out ' + path.join(dir, 'ca.crt');
   exec(cmd, function finish() {
