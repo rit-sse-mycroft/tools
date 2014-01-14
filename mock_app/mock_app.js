@@ -27,10 +27,9 @@ client.on('data', function (data) {
     console.log(' - Type: ' + parsed.type);
     console.log(' - Message:' + JSON.stringify(parsed.data));
   }
-
+  
   if (verified) {
-    app.query(client, 'tts', 'say', ['Pickle Unicorns']);
-    app.query(client, 'audioOutput', 'say', ['Pickle Unicorns']);
+    app.query(client, 'tts', 'stream', ['Pickle Unicorns'], ['text2speech'], '3');
   }
   if(dependencies){
   	if(dependencies.logger == 'up'){
