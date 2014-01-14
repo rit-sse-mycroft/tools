@@ -208,6 +208,11 @@ function goDown(cli, data) {
 function handleQuery(cli, data) {
   var fromInstanceId = cli['manifest']['instanceId'];
   var toInstanceIds = data['instanceId'];
+  // if not an array, then we can't handle this!
+  if (toInstanceIds != undefined && typeof(toInstanceIds) != 'Array') {
+    console.log('WARNING: instanceId was not an array. Skipping');
+    return;
+  }
   var targetCapability = data['capability'];
   messages[data['id']] = {from: cli};
   // if no target was specified, this is untargeted
@@ -222,7 +227,15 @@ function handleQuery(cli, data) {
   // else this is targeted, so way easier!
   else {
     for (var i=0; i<toInstanceIds.length; i++) {
-      sendMessage(apps[toInstanceIds[i]]['socket'], 'MSG_QUERY ' + JSON.stringify(data));
+      if (!(toInstanceIds[i] in apps)) {
+        console.log(
+          "WARNING: will not send message to invalid instance id " + 
+          toInstanceIds[i]
+        );
+      }
+      else {
+        sendMessage(apps[toInstanceIds[i]]['socket'], 'MSG_QUERY ' + JSON.stringify(data));
+      }
     }
   }
 }
