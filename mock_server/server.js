@@ -209,7 +209,7 @@ function handleQuery(cli, data) {
   var fromInstanceId = cli['manifest']['instanceId'];
   var toInstanceIds = data['instanceId'];
   // if not an array, then we can't handle this!
-  if (toInstanceIds != undefined && typeof(toInstanceIds) != 'Array') {
+  if (toInstanceIds != undefined &&  !(toInstanceIds instanceof Array)) {
     console.log('WARNING: instanceId was not an array. Skipping');
     return;
   }
