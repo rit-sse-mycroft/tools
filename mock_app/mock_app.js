@@ -29,7 +29,7 @@ client.on('data', function (data) {
   }
   
   if (verified) {
-    app.query(client, 'tts', 'stream', ['Pickle Unicorns'], ['text2speech'], '3');
+    app.query(client, 'tts', 'stream', ['Pickle Unicorns','speakers'], ['text2speech'], '3');
   }
   if(dependencies){
   	if(dependencies.logger == 'up'){
