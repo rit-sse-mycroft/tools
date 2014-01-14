@@ -1,0 +1,19 @@
+{
+  "name": "mycroft_tools",
+  "version": "0.0.0",
+  "description": "Tools used for developing Mycroft",
+  "main": "setup_keys.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rit-sse-mycroft/tools.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rit-sse-mycroft/tools/issues"
+  },
+  "homepage": "https://github.com/rit-sse-mycroft/tools"
+}
