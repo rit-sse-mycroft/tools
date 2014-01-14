@@ -30,6 +30,7 @@ client.on('data', function (data) {
 
   if (verified) {
     app.query(client, 'tts', 'say', ['Pickle Unicorns']);
+    app.query(client, 'speakers', 'say', ['Pickle Unicorns']);
   }
   if(dependencies){
   	if(dependencies.logger == 'up'){

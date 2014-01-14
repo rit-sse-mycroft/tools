@@ -4,8 +4,7 @@
     "displayName": "Mycroft test service",
     "instanceId": "mockapp1",
     "capabilities": {
-      "microphone": "1.0.0",
-      "speakers": "1.0.0"
+      "mocking": "0.4.2"
     },
     "API": "0",
     "description": "It does odd stuff like testing or things",
