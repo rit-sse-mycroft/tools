@@ -79,12 +79,12 @@ function down(connection) {
   sendMessage(connection, 'APP_DOWN');
 }
 
-function query(connection, capability, remoteProcedure, args, instanceId, priority) {
+function query(connection, capability, action, data, instanceId, priority) {
   queryMessage = {
     id: uuid.v4(),
     capability: capability,
-    remoteProcedure: remoteProcedure,
-    args: args,
+    action: action,
+    data: data,
     priority: priority,
 
   };
