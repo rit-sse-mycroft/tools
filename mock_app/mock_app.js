@@ -29,8 +29,13 @@ client.on('data', function (data) {
   }
   
   if (verified) {
-    app.query(client, 'tts', 'stream', ['Pickle Unicorns','speakers'], ['text2speech'], 30);
+    data = {
+      text: "Pickle Unicorns",
+      targetSpeaker: "speakers"
+    }
+    app.query(client, 'tts', 'stream', data, ['text2speech'], 30);
   }
+  
   if(dependencies){
   	if(dependencies.logger == 'up'){
   		app.up(client);
