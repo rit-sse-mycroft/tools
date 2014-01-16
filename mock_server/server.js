@@ -119,6 +119,9 @@ function handleMsg(type, data, cli){
   else if(type === 'MSG_QUERY_FAIL') {
     handleQueryResponse('FAIL', cli, data);
   }
+  else if(type === 'MSG_BROADCAST') {
+    broadcast(cli, data);
+  }
   else {
     console.log("Got unknown message type " + type + " with data:");
     console.log(JSON.stringify(data));
@@ -241,10 +244,14 @@ function handleQuery(cli, data) {
 }
 
 // status is either 'SUCCESS' or 'FAIL'
-function hanleQueryResponse(status, cli, data) {
+function handleQueryResponse(status, cli, data) {
   data.instanceId = cli['manifest']['instanceId'];
   var id = data['id'];
   sendMessage(cli, 'MSG_QUERY_' + status + ' ' + JSON.stringify(data));
+}
+
+function broadcast(cli, data) {
+  sendMessageToDependants(cli, 'MSG_BROADCAST ' + JSON.stringify(data));
 }
 
 // {
