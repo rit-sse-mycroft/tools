@@ -252,7 +252,7 @@ function handleQueryResponse(status, cli, data) {
 
 function broadcast(cli, data) {
   //Send to ALL THE CLIENTS
-  msg = "MSG_BROADCAST " + data;
+  msg = "MSG_BROADCAST " + JSON.stringify(data);
   for (key in apps) {
     sendMessage(apps[key].socket, msg);
   }
