@@ -132,7 +132,7 @@ function sendMessage(cli, msg) {
   var bytes = Buffer.byteLength(msg, 'utf8');
   var msg = bytes + '\n' + msg;
   cli.write(msg);
-  console.log("sent message:");
+  console.log("sent message to " + cli['manifest'].instanceId);
   console.log(msg);
 }
 
@@ -247,7 +247,7 @@ function handleQuery(cli, data) {
 function handleQueryResponse(status, cli, data) {
   data.instanceId = cli['manifest']['instanceId'];
   var id = data['id'];
-  sendMessage(cli, 'MSG_QUERY_' + status + ' ' + JSON.stringify(data));
+  sendMessage(messages[id]['from'], 'MSG_QUERY_' + status + ' ' + JSON.stringify(data));
 }
 
 function broadcast(cli, data) {
