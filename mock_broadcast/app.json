@@ -1,0 +1,14 @@
+{
+    "version": "0.0.1",
+    "name": "mock-broadcast",
+    "displayName": "Mock Broadcast",
+    "instanceId": "",
+    "capabilities": {
+      "stt": "0.1"
+    },
+    "API": "0",
+    "description": "Takes keyboard input and sends it as broadcast",
+    "dependencies": {
+      "logger": "1.0"
+    }
+}
