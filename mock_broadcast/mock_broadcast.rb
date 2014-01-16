@@ -32,6 +32,7 @@ class MockBroadcast < Mycroft::Client
     if parsed[:type] == 'APP_MANIFEST_OK' || parsed[:type] == 'APP_MANIFEST_FAIL'
       check_manifest(parsed)
       @verified = true
+      up
     end
   end
 
