@@ -4,11 +4,11 @@
     "displayName": "Mock Broadcast",
     "instanceId": "asdhfkasdhf",
     "capabilities": {
-      "stt": "0.1"
+      "stt": "0.0.1"
     },
     "API": "0",
     "description": "Takes keyboard input and sends it as broadcast",
     "dependencies": {
-      "logger": "1.0"
+      "logger": "1.0.0"
     }
 }

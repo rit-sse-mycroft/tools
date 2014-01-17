@@ -30,7 +30,7 @@ client.on('data', function (data) {
   
   if (verified) {
     data = {
-      text: "Pickle Unicorns",
+      text: "$0.75",
       targetSpeaker: "speakers"
     }
     app.query(client, 'tts', 'stream', data, ['text2speech'], 30);

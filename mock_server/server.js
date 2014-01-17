@@ -176,17 +176,18 @@ function register(cli, manifest) {
 
   var depStatus = {}; // {'name':[], ...}
   var myDeps = manifest['dependencies'];
-  for (var depName in myDeps) { // iterate over what dependencies I need
-    depStatus[depName] = [];
-    for(var appID in apps) { // iterate over all apps
-      var isNotMe = !(appID === id);
-      var isUp    = apps[appID]['status'] === 'up';
-      var matchesVersion = semver.satisfies(appID['version'], myDeps[depName]);
-      if (isNotMe && isUp && matchesVersion) { // if this should be told
-        depStatus[depName].append(appID);
-      }
-    }
-  }
+  depStatus = checkDependencies(cli);
+  // for (var depName in myDeps) { // iterate over what dependencies I need
+  //   depStatus[depName] = [];
+  //   for(var appID in apps) { // iterate over all apps
+  //     var isNotMe = !(appID === id);
+  //     var isUp    = apps[appID]['status'] === 'up';
+  //     var matchesVersion = semver.satisfies(appID['version'], myDeps[depName]);
+  //     if (isNotMe && isUp && matchesVersion) { // if this should be told
+  //       depStatus[depName].append(appID);
+  //     }
+  //   }
+  // }
   sendMessage(cli, "APP_MANIFEST_OK " + JSON.stringify({
     instanceId: id,
     dependencies: depStatus
@@ -278,36 +279,74 @@ function addDependents(manifest){
 }
 // send the message msg to everyone who depends on the given client (a socket)
 function sendMessageToDependants(cli, msg) {
+  console.log("Gets here!");
   var capabilities = cli['manifest'].capabilities;
   for(var capability in capabilities) {
+    console.log("Checking Capability: " + capability);
     var version = capabilities[capability];
+    console.log("version " + version);
     for(var appID in apps) {
-      for(var capabilityNeeded in apps[appID]['dependencies']) {
+      console.log("- Checking application: " + appID);
+      for(var capabilityNeeded in apps[appID]['manifest']['dependencies']) {
+        console.log("- - Has dependency: " + capabilityNeeded);
+        console.log("- - Version " + apps[appID]['manifest']['dependencies'][capabilityNeeded]);
         var fulfils = capability === capabilityNeeded;
-        var versionGood = semver.satisfies(version,
-                                           apps[appID]['dependencies'][capability]
+        try {
+          var versionGood = semver.satisfies(version,
+                                           apps[appID]['manifest']['dependencies'][capabilityNeeded]
                                           );
+        } catch (err) {
+          var versionGood = false;
+        }
         if(fulfils && versionGood) {
           // whoa we need to notify this app!
-          sendMessage(cli, msg);
+          console.log("Found a match!");
+          sendMessage(apps[appID].socket, msg);
         }
       }
     }
   }
 }
+
+//Return a dependencies object that contains the state of
+//all apps that satisfy the dependencies of the app given by
+//cli
+function checkDependencies(cli){
+  var dependencies = {};
+  for (var dependency in cli['manifest']['dependencies']) {
+    dependencies[dependency] = {};
+  }
+  for (var appId in apps) {
+    for (var capability in apps[appId]['manifest']['capabilities']) {
+      if (dependencies.hasOwnProperty(capability)) {
+        var requestedVersion = cli['manifest']['dependencies'][capability];
+        var givenVersion = apps[appId]['manifest']['capabilities'][capability];
+        try {
+          var matches = semver.satisfies(givenVersion, requestedVersion);
+        } catch (err) {
+          var matches = false
+        }
+        if (matches) {
+          dependencies[capability][appId] = apps[appId]['status'];
+        }
+      }
+    }
+  }
+  return dependencies;
+}
+
+
 //notify a new 'dependent' is avaliable
 function dependencyAlerter(cli){
-  var msg = 'APP_UP ' + JSON.stringify({
-    instanceId: cli.instanceId,
-    capabilities: cli['manifest']['capabilities']
-  });
+  dependency = {}
+  dependency[cli.instanceId] = 'up'
+  var msg = 'APP_DEPENDENCY ' + JSON.stringify(dependency);
   sendMessageToDependants(cli, msg);
 }
 //alert apps if a dependency goes down
 function dependencyRemovedAlerter(cli){
-  var msg = 'APP_DOWN ' + JSON.stringify({
-    instanceId: cli.instanceId,
-    capabilities: cli['manifest']['capabilities']
-  });
+  dependency = {}
+  dependency[cli.instanceId] = 'down'
+  var msg = 'APP_DEPENDENCY ' + JSON.stringify(dependency);
   sendMessageToDependants(cli, msg);
 }
