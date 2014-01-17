@@ -110,6 +110,9 @@ function handleMsg(type, data, cli){
   else if(type === 'APP_DOWN'){
     goDown(cli, data);
   }
+  else if(type === 'APP_IN_USE') {
+    goInUse(cli, data.priority);
+  }
   else if(type === 'MSG_QUERY') {
     handleQuery(cli, data);
   }
@@ -207,6 +210,13 @@ function goDown(cli, data) {
   apps[id]['status'] = 'down';
   dependencyRemovedAlerter(cli);
   console.log('app id ' + id + ' just went down');
+}
+
+function goInUse(cli, priority) {
+  var id = cli.instanceId;
+  apps[id]['status'] = 'in_use ' + priority;
+  dependencyRemovedAlerter(cli, priority);
+  console.log('app id ' + id + ' is in use by a process with priority ' + priority);
 }
 
 function handleQuery(cli, data) {
@@ -338,15 +348,22 @@ function checkDependencies(cli){
 
 //notify a new 'dependent' is avaliable
 function dependencyAlerter(cli){
-  dependency = {}
+  var dependency = {};
   dependency[cli.instanceId] = 'up'
   var msg = 'APP_DEPENDENCY ' + JSON.stringify(dependency);
   sendMessageToDependants(cli, msg);
 }
 //alert apps if a dependency goes down
 function dependencyRemovedAlerter(cli){
-  dependency = {}
+  var dependency = {};
   dependency[cli.instanceId] = 'down'
+  var msg = 'APP_DEPENDENCY ' + JSON.stringify(dependency);
+  sendMessageToDependants(cli, msg);
+}
+//alert apps if a dependency goes in in_use
+function dependencyInUseAlerter(cli, priority){
+  var dependency = {};
+  dependency[cli.instanceId] = 'in_use ' + priority;
   var msg = 'APP_DEPENDENCY ' + JSON.stringify(dependency);
   sendMessageToDependants(cli, msg);
 }
