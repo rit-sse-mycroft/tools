@@ -206,7 +206,8 @@ function goInUse(cli, priority) {
 }
 
 function handleQuery(cli, data) {
-  var fromInstanceId = cli['manifest']['instanceId'];
+  var fromInstanceId = cli['instanceId'];
+  data['fromInstanceId'] = fromInstanceId
   var toInstanceIds = data['instanceId'];
   // if not an array, then we can't handle this!
   if (toInstanceIds != undefined &&  !(toInstanceIds instanceof Array)) {
