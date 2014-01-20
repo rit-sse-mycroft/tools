@@ -2,7 +2,7 @@
     "version": "0.0.1",
     "name": "mock-broadcast",
     "displayName": "Mock Broadcast",
-    "instanceId": "asdhfkasdhf",
+    "instanceId": "Mock Broadcast (NOT ACTUALLY STT)",
     "capabilities": {
       "stt": "0.0.1"
     },
