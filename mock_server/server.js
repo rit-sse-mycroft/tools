@@ -177,24 +177,10 @@ function register(cli, manifest) {
     delete apps[id];
   });
 
-  var depStatus = {}; // {'name':[], ...}
-  var myDeps = manifest['dependencies'];
-  depStatus = checkDependencies(cli);
-  // for (var depName in myDeps) { // iterate over what dependencies I need
-  //   depStatus[depName] = [];
-  //   for(var appID in apps) { // iterate over all apps
-  //     var isNotMe = !(appID === id);
-  //     var isUp    = apps[appID]['status'] === 'up';
-  //     var matchesVersion = semver.satisfies(appID['version'], myDeps[depName]);
-  //     if (isNotMe && isUp && matchesVersion) { // if this should be told
-  //       depStatus[depName].append(appID);
-  //     }
-  //   }
-  // }
   sendMessage(cli, "APP_MANIFEST_OK " + JSON.stringify({
     instanceId: id,
-    dependencies: depStatus
   }));
+  sendDependencies(cli)
   console.log('App id ' + id + ' connected');
 }
 
@@ -267,6 +253,12 @@ function broadcast(cli, data) {
   for (key in apps) {
     sendMessage(apps[key].socket, msg);
   }
+}
+
+function sendDependencies(cli) {
+  //Send an app the status of its dependencies
+  var dependencies = checkDependencies(cli)
+  sendMessage(cli, "APP_DEPENDENCY " + JSON.stringify(checkDependencies(cli)));
 }
 
 // {
@@ -349,20 +341,30 @@ function checkDependencies(cli){
 //notify a new 'dependent' is avaliable
 function dependencyAlerter(cli){
   var dependency = {};
-  dependency[cli.instanceId] = 'up'
+  for (capability in cli.manifest['capabilities']) {
+    dependency[capability] = {};
+    dependency[capability][cli.instanceId] = 'up';
+  }
   var msg = 'APP_DEPENDENCY ' + JSON.stringify(dependency);
   sendMessageToDependants(cli, msg);
 }
 //alert apps if a dependency goes down
 function dependencyRemovedAlerter(cli){
   var dependency = {};
-  dependency[cli.instanceId] = 'down'
+  for (capability in cli.manifest['capabilities']) {
+    dependency[capability] = {};
+    dependency[capability][cli.instanceId] = 'down';
+  }
   var msg = 'APP_DEPENDENCY ' + JSON.stringify(dependency);
   sendMessageToDependants(cli, msg);
 }
 //alert apps if a dependency goes in in_use
 function dependencyInUseAlerter(cli, priority){
   var dependency = {};
+  for (capability in cli.manifest['capabilities']) {
+    dependency[capability] = {};
+    dependency[capability][cli.instanceId] = 'in_use ' + priority;
+  }
   dependency[cli.instanceId] = 'in_use ' + priority;
   var msg = 'APP_DEPENDENCY ' + JSON.stringify(dependency);
   sendMessageToDependants(cli, msg);
