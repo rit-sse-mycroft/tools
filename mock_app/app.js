@@ -106,8 +106,7 @@ function broadcast(connection, content) {
 }
 
 // Checks if the manifest was validated and returns dependencies
-function manifestCheck(data) {
-  var parsed = parseMessage(data);
+function manifestCheck(parsed) {
   if (parsed.type === 'APP_MANIFEST_OK' || parsed.type === 'APP_MANIFEST_FAIL') {
     console.log('Response type: ' +  parsed.type);
     console.log('Response recieved: ' + JSON.stringify(parsed.data));
