@@ -1,14 +1,12 @@
 {
-    "version": "0.0.1",
-    "name": "mock-broadcast",
-    "displayName": "Mock Broadcast",
-    "instanceId": "Mock Broadcast (NOT ACTUALLY STT)",
-    "capabilities": {
-      "stt": "0.0.1"
-    },
-    "API": "0",
-    "description": "Takes keyboard input and sends it as broadcast",
-    "dependencies": {
-      "logger": "1.0.0"
-    }
+  "version": "0.0.1",
+  "name": "mock-broadcaster",
+  "displayName": "Totally speech to text",
+  "instanceId": "1vgs083-sdas09v8e09s39w-982309",
+  "capabilities": {
+    "stt": "0.0.1"
+  },
+  "API": "0",
+  "description": "Literally the worst app ever",
+  "dependencies": {}
 }

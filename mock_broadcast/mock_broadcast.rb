@@ -1,38 +1,27 @@
 require 'mycroft'
 
-class MockBroadcast < Mycroft::Client
+class MockBroadcaster < Mycroft::Client
 
   attr_accessor :verified
 
-  def initialize(q)
-    @key = ''
-    @cert = ''
+  def initialize(host, port)
+    @key = '/path/to/key'
+    @cert = '/path/to/cert'
     @manifest = './app.json'
     @verified = false
-
-    @queue = q
-
-    cb = Proc.new do |msg|
-
-      content = {text: msg}
-      broadcast(content)
-
-      q.pop &cb
-    end
-
-    q.pop &cb
+    super
   end
 
   def connect
+    while(true) do
+      msg = $stdin.gets.chomp
+      broadcast(msg)
+    end
     # Your code here
   end
 
-  def on_data(parsed)
-    if parsed[:type] == 'APP_MANIFEST_OK' || parsed[:type] == 'APP_MANIFEST_FAIL'
-      check_manifest(parsed)
-      @verified = true
-      up
-    end
+  def on_data(data)
+    # Your code here
   end
 
   def on_end
@@ -40,23 +29,4 @@ class MockBroadcast < Mycroft::Client
   end
 end
 
-class KeyboardHandler < EM::Connection
-  include EM::Protocols::LineText2
-
-  attr_reader :queue
-
-  def initialize(q)
-    @queue = q
-  end
-
-  def receive_line(data)
-    @queue.push(data)
-  end
-end
-
-EventMachine.run do
-  q = EventMachine::Queue.new
-
-  EventMachine.connect('localhost', 1847, MockBroadcast, q)
-  EventMachine.open_keyboard(KeyboardHandler, q)
-end
+Mycroft.start(MockBroadcaster)
