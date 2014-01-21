@@ -6,7 +6,7 @@
     "capabilities": {
       "mocking": "0.4.2"
     },
-    "API": "0",
+    "API": 0,
     "description": "It does odd stuff like testing or things",
     "dependencies": {
         "logger": "1.2"
