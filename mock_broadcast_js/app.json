@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "name": "mock-broadcast-js",
+  "displayName": "Mock Broadcast (Node.js version)",
+  "description": "Takes keyboard input and sends it as a STT broadcast.",
+  "capabilities": {
+    "stt": "0.1"
+  },
+  "API": "0",
+  "dependencies": {
+    "logger": "1.0"
+  },
+  "instanceId": "mock-broadcast-js-1"
+}
