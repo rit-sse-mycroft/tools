@@ -7,23 +7,27 @@ var MYCROFT_PORT = 1847;
 function parseMessage(msg){
   msg = msg.toString();
 
-  var re = /(\d+)\n(.*) ({[^]*})/;
-  var msgSplit = re.exec(msg);
+  console.log("Received message: " + msg);
 
-  if (!msgSplit) { //There is no body to this message
-    re = /(\d+)\n(.*)/
-    msgSplit = re.exec(msg)
+  var firstSpace = msg.indexOf(" ");
+
+  // No body in message
+  if(firstSpace < 0){
+    var msgSplit = re.exec(msg)
     if (!msgSplit) { //RE still doesn't match... something is wrong.
       throw "Error: Malformed Message"
     }
-    var type = msgSplit[2];
+    var type = msg;
     var data = {};
 
   } else {
-    var type = msgSplit[2];
-    var data = JSON.parse(msgSplit[3]);
+
+    var type = msg.substr(0, firstSpace);
+    var data = JSON.parse(msg.substr(firstSpace + 1));
+
   }
   return {type: type, data: data};
+
 }
 
 //path is the path to the json manifest
