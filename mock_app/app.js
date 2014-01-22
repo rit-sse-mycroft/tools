@@ -4,7 +4,7 @@ var uuid = require('uuid');
 var fs = require('fs');
 var MYCROFT_PORT = 1847;
 
-function parseMessage(msg){
+function parseMessage(msg) {
   msg = msg.toString();
 
   console.log("Received message: " + msg);
@@ -12,7 +12,7 @@ function parseMessage(msg){
   var firstSpace = msg.indexOf(" ");
 
   // No body in message
-  if(firstSpace < 0){
+  if (firstSpace < 0) {
     var msgSplit = re.exec(msg)
     if (!msgSplit) { //RE still doesn't match... something is wrong.
       throw "Error: Malformed Message"
@@ -35,13 +35,12 @@ function connectToMycroft(appName) {
   var client = null;
   if (process.argv.length === 3 && process.argv[2] === '--no-tls') {
     console.log("Not using TLS");
-    client = net.connect({port: 1847}, function(err){
+    client = net.connect({port: 1847}, function(err) {
       if (err) {
         console.error('There was an error establishing connection');
       }
     });
-  }
-  else {
+  } else {
     console.log("Using TLS");
     var connectOptions = {
       key: fs.readFileSync(appName + '.key'),
@@ -50,7 +49,7 @@ function connectToMycroft(appName) {
       rejectUnauthorized: false,
       port: MYCROFT_PORT
     };
-    client = tls.connect(connectOptions, function(err){
+    client = tls.connect(connectOptions, function(err) {
       if (err) {
         console.error('There was an error in establishing TLS connection');
       }
@@ -123,8 +122,11 @@ function manifestCheck(parsed) {
 //Sends a message of specified type. Adds byte length before message.
 //Does not need to specify a message object. (e.g. APP_UP and APP_DOWN)
 function sendMessage(connection, type, message) {
-  if (typeof(message) === 'undefined') message = '';
-  else message = JSON.stringify(message);
+  if (typeof(message) === 'undefined') {
+    message = '';
+  } else {
+    message = JSON.stringify(message);
+  }
   var body = (type + ' ' + message).trim();
   var length = Buffer.byteLength(body, 'utf8');
   console.log('Sending Message');
