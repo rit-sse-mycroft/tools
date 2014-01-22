@@ -8,7 +8,7 @@ app.sendManifest(client, './app.json');
 var verified = false; //Set to true when APP_MANIFEST_OKAY received
 
 client._unconsumed = '';
-client.on('data', function(msg){
+client.on('data', function(msg) {
   parsed = app.parseMessage(msg);
   for(var i = 0; i < parsed.length; i++) {
     handleMsg(parsed[i]);
@@ -48,8 +48,8 @@ function handleMsg(parsed) {
     //app.query(client, 'tts', 'stream', data, ['text2speech'], 30);
   }
   
-  if(dependencies){
-  	if(dependencies.logger == 'up'){
+  if (dependencies) {
+  	if (dependencies.logger == 'up'){
   		app.up(client);
   	}
   }
