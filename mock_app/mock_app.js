@@ -9,57 +9,17 @@ var verified = false; //Set to true when APP_MANIFEST_OKAY received
 
 client._unconsumed = '';
 client.on('data', function(msg){
-  	client._unconsumed += msg.toString().trim();
-    while (client._unconsumed != '') {
-      // get the message-length to read
-      var verbStart = client._unconsumed.indexOf('\n');
-      var msgLen = parseInt(client._unconsumed.substr(0, verbStart));
-      // cut off the message length header from unconsumed
-      client._unconsumed = client._unconsumed.substr(verbStart+1);
-      // figure out how many bytes we have left to consume
-      var bytesLeft = Buffer.byteLength(client._unconsumed, 'utf8');
-      // don't process anything if we don't have enough bytes
-      if (bytesLeft < msgLen) {
-        break;
-      }
-      // isolate the message we are actually handling
-      var unconsumedBuffer = new Buffer(client._unconsumed);
-      msg = unconsumedBuffer.slice(0, msgLen).toString();
-      // store remainin stuff in unconsumed
-      client._unconsumed = unconsumedBuffer.slice(msgLen).toString();
-      // go process this single message
-      console.log('got message');
-      console.log(msg);
-      var type = '';
-      var data = {};
-      var index = msg.indexOf(' {');
-      if (index >= 0) { // if a body was supplied
-        type = msg.substr(0, index);
-        try {
-          var toParse = msg.substr(index+1);
-          data = JSON.parse(toParse);
-        }
-        catch(err) {
-          console.log('malformed message 01');
-          sendMessage(cli, "MSG_MALFORMED \n" + err);
-          return;
-        }
-      }
-      else { // no body was supplied
-        type = msg;
-      }
-
-      handleMsg({type: type, data: data}, client);
-    }
-  });
+  parsed = app.parseMessage(msg);
+  for(var i = 0; i < parsed.length; i++) {
+    handleMsg(parsed[i]);
+  }
+});
 
 
-
-
-function handleMsg(parsed, client) {
-
-  //parsed = app.parseMessage(data);
-  //Check the type of ths message
+// Handle a single command.
+// parsed is a parsed command (as JSON) with type:String and data:Object.
+function handleMsg(parsed) {
+  // Check the type of this message.
   if (parsed.type === 'APP_MANIFEST_OK' || 'APP_MANIFEST_FAIL') {
     var dependencies = app.manifestCheck(parsed);
     verified = true;

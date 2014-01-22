@@ -4,30 +4,57 @@ var uuid = require('uuid');
 var fs = require('fs');
 var MYCROFT_PORT = 1847;
 
+var _unconsumed = '';
+
+// Parses a received message and returns an array of commands as
+// an Object containing type:String and data:Object.
 function parseMessage(msg) {
-  msg = msg.toString();
-
-  console.log("Received message: " + msg);
-
-  var firstSpace = msg.indexOf(" ");
-
-  // No body in message
-  if (firstSpace < 0) {
-    var msgSplit = re.exec(msg)
-    if (!msgSplit) { //RE still doesn't match... something is wrong.
-      throw "Error: Malformed Message"
+  // Add the message to unconsumed.
+  _unconsumed += msg.toString().trim();
+  // Create an array for the newly parsed commands.
+  var parsedCommands = [];
+  
+  while (_unconsumed != '') {
+    // Get the message-length to read.
+    var verbStart = _unconsumed.indexOf('\n');
+    var msgLen = parseInt(_unconsumed.substr(0, verbStart));
+    // Cut off the message length header from unconsumed.
+    _unconsumed = _unconsumed.substr(verbStart+1);
+    // Figure out how many bytes we have left to consume.
+    var bytesLeft = Buffer.byteLength(_unconsumed, 'utf8');
+    // Do not process anything if we do not have enough bytes.
+    if (bytesLeft < msgLen) {
+      break;
     }
-    var type = msg;
+    // Isolate the message we are actually handling.
+    var unconsumedBuffer = new Buffer(_unconsumed);
+    msg = unconsumedBuffer.slice(0, msgLen).toString();
+    // Store remaining stuff in unconsumed.
+    _unconsumed = unconsumedBuffer.slice(msgLen).toString();
+    // Go process this single message.
+    console.log('Got message:');
+    console.log(msg);
+    var type = '';
     var data = {};
-
-  } else {
-
-    var type = msg.substr(0, firstSpace);
-    var data = JSON.parse(msg.substr(firstSpace + 1));
-
+    var index = msg.indexOf(' {');
+    if (index >= 0) { // If a body was supplied
+      type = msg.substr(0, index);
+      try {
+        var toParse = msg.substr(index+1);
+        data = JSON.parse(toParse);
+      }
+      catch(err) {
+        console.error('Malformed message 01');
+        sendMessage(cli, "MSG_MALFORMED \n" + err);
+        return;
+      }
+    } else { // No body was supplied
+      type = msg;
+    }
+    
+    parsedCommands.push({type: type, data: data});
   }
-  return {type: type, data: data};
-
+  return parsedCommands;
 }
 
 // If using TLS, appName is assumed to be the name of the keys.
