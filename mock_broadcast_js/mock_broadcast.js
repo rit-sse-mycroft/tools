@@ -18,11 +18,23 @@ app.sendManifest(client, './app.json');
 var verified = false; //Set to true when APP_MANIFEST_OKAY received
 
 
-client.on('data', function (data) {
-  parsed = app.parseMessage(data);
-  //Check the type of this message
+client.on('data', function(msg) {
+  parsed = app.parseMessage(msg);
+  for (var i = 0; i < parsed.length; i++) {
+    handleMessage(parsed[i]);
+  }
+});
+
+client.on('end', function() {
+  console.log('Client disconnected.');
+});
+
+// Handle a single command.
+// parsed is a parsed command (as JSON) with type:String and data:Object.
+function handleMessage(parsed) {
+  // Check the type of this message.
   if (parsed.type === 'APP_MANIFEST_OK' || 'APP_MANIFEST_FAIL') {
-    var dependencies = app.manifestCheck(data);
+    var dependencies = app.manifestCheck(parsed.data);
     verified = true;
     promptMessage();
   } else {
@@ -36,11 +48,7 @@ client.on('data', function (data) {
       app.up(client);
     }
   }
-});
-
-client.on('end', function() {
-  console.log('Client disconnected.');
-});
+}
 
 function promptMessage() {
   prompt.start();
