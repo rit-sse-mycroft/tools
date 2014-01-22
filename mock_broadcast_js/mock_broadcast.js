@@ -17,6 +17,7 @@ app.sendManifest(client, './app.json');
 
 var verified = false; //Set to true when APP_MANIFEST_OKAY received
 
+var lastMessage;
 
 client.on('data', function(msg) {
   parsed = app.parseMessage(msg);
@@ -33,10 +34,15 @@ client.on('end', function() {
 // parsed is a parsed command (as JSON) with type:String and data:Object.
 function handleMessage(parsed) {
   // Check the type of this message.
-  if (parsed.type === 'APP_MANIFEST_OK' || 'APP_MANIFEST_FAIL') {
+  if (parsed.type === 'APP_MANIFEST_OK'/* || parsed.type === 'APP_MANIFEST_FAIL'*/) {
     var dependencies = app.manifestCheck(parsed.data);
     verified = true;
     promptMessage();
+  } else if (parsed.type === 'MSG_BROADCAST') {
+    if (lastMessage && parsed.data.content &&
+        parsed.data.content.text && lastMessage === parsed.data.content.text) {
+      promptMessage();
+    }
   } else {
     console.log('Message Receieved');
     console.log(' - Type: ' + parsed.type);
@@ -54,15 +60,13 @@ function promptMessage() {
   prompt.start();
   prompt.get(PROMPT_SCHEMA, function(err, result) {
     if (!err) {
-      // Log the input (for debugging)
-      console.log('Input received: ' + result.message);
       var message = {
         text: result.message
       };
       // Broadcast the input.
       app.broadcast(client, message);
-      // Prompt for the next message.
-      promptMessage();
+      // This is now the last message sent.
+      lastMessage = result.message;
     }
   });
 }

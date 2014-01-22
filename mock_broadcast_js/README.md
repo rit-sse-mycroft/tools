@@ -1,7 +1,7 @@
 Mock Broadcaster (Node.js Version)
 ==================================
 
-This allows you to send fake STT broadcasts.  Note it sometimes has issues with git bash, so use a different shell if it gives you trouble.
+This allows you to send fake STT broadcasts.
 
 Setup (no TLS)
 --------------
