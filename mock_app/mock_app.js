@@ -1,5 +1,7 @@
+var APP_NAME = 'mock_app';
+
 var app = require('./app.js');
-var client = app.connectToMycroft();
+var client = app.connectToMycroft(APP_NAME);
 
 app.sendManifest(client, './app.json');
 

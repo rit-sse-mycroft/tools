@@ -30,8 +30,8 @@ function parseMessage(msg){
 
 }
 
-//path is the path to the json manifest
-function connectToMycroft() {
+// If using TLS, appName is assumed to be the name of the keys.
+function connectToMycroft(appName) {
   var client = null;
   if (process.argv.length === 3 && process.argv[2] === '--no-tls') {
     console.log("Not using TLS");
@@ -44,8 +44,8 @@ function connectToMycroft() {
   else {
     console.log("Using TLS");
     var connectOptions = {
-      key: fs.readFileSync('mock_app.key'),
-      cert: fs.readFileSync('mock_app.crt'),
+      key: fs.readFileSync(appName + '.key'),
+      cert: fs.readFileSync(appName + '.crt'),
       ca: [ fs.readFileSync('ca.crt') ],
       rejectUnauthorized: false,
       port: MYCROFT_PORT
