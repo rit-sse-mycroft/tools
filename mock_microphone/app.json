@@ -1,0 +1,12 @@
+{
+    "version": "0.0.1",
+    "name": "mock-microphone",
+    "displayName": "Fake Microphone",
+    "instanceId": "mockmicrophone1",
+    "capabilities": {
+      "mock_microphone": "0.0.1"
+    },
+    "API": 0,
+    "description": "It emulates a microphone",
+    "dependencies": {}
+}

@@ -1,0 +1,13 @@
+{
+  "name": "mock_microphone",
+  "version": "0.0.1",
+  "description": "Mycroft fake microphone",
+  "main": "mock_broadcast.js",
+  "author": "RIT-SSE",
+  "license": "-",
+  "dependencies": {
+    "mocha": "~1.16.2",
+    "prompt": "~0.2.12",
+    "uuid": "~1.4.1"
+  }
+}
