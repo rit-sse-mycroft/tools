@@ -65,7 +65,7 @@ function promptMessage() {
       app.broadcast(client, message);
       // This is now the last message sent.
       lastMessage = result.message;
+      promptMessage();
     }
-    promptMessage();
   });
 }

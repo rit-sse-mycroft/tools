@@ -49,7 +49,7 @@ function promptMessage() {
       };
       // Broadcast the input.
       app.broadcast(client, message);
+      promptMessage();
     }
-    promptMessage();
   });
 }
